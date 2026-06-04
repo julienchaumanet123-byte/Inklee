@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/utils";
 import { STATUS_LABEL, STATUS_VARIANT } from "@/lib/appointment-status";
 import { NotesForm } from "./notes-form";
+import { MessagesPanel } from "./messages-panel";
+import { markClientMessagesRead } from "./messages-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -36,14 +38,24 @@ export default async function ClientDetailPage({
     .maybeSingle();
   if (!client) notFound();
 
-  const { data: appointments } = await supabase
-    .from("appointments")
-    .select("id, starts_at, status, project_description, deposit_paid, deposit_amount")
-    .eq("client_id", client.id)
-    .order("starts_at", { ascending: false });
+  // Marque les messages reçus comme lus en arrivant sur la fiche
+  await markClientMessagesRead(client.id);
+
+  const [{ data: appointments }, { data: messages }] = await Promise.all([
+    supabase
+      .from("appointments")
+      .select("id, starts_at, status, project_description, deposit_paid, deposit_amount")
+      .eq("client_id", client.id)
+      .order("starts_at", { ascending: false }),
+    supabase
+      .from("messages")
+      .select("id, sender, body, created_at")
+      .eq("client_id", client.id)
+      .order("created_at", { ascending: true }),
+  ]);
 
   return (
-    <div className="p-6 md:p-10 max-w-4xl">
+    <div className="p-6 md:p-10 max-w-6xl">
       <Link
         href="/dashboard/clients"
         className="inline-flex items-center gap-2 text-sm text-ink-400 hover:text-foreground mb-6"
@@ -75,7 +87,7 @@ export default async function ClientDetailPage({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Historique */}
+        {/* Colonne gauche : historique + chat */}
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
@@ -119,9 +131,23 @@ export default async function ClientDetailPage({
               )}
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Messages</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MessagesPanel
+                clientId={client.id}
+                initialMessages={messages ?? []}
+                clientName={client.first_name}
+                clientHasAuth={Boolean(client.auth_user_id)}
+              />
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Notes */}
+        {/* Colonne droite : notes */}
         <div>
           <Card>
             <CardHeader>

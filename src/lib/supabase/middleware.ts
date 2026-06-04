@@ -31,22 +31,31 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isProtected =
+  const isProRoute =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/settings");
-  const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const isPortalRoute =
+    pathname.startsWith("/portal") && pathname !== "/portal/login";
+  const isProAuthPage = pathname === "/login" || pathname === "/signup";
+  const isPortalAuthPage = pathname === "/portal/login";
 
-  if (!user && isProtected) {
+  if (!user && (isProRoute || isPortalRoute)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = isPortalRoute ? "/portal/login" : "/login";
     url.searchParams.set("redirectTo", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage) {
+  if (user && isProAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  if (user && isPortalAuthPage) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/portal";
     return NextResponse.redirect(url);
   }
 

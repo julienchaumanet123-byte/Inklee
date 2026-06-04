@@ -18,6 +18,7 @@ export type AppointmentStatus =
   | "cancelled"
   | "no_show";
 export type PlanTier = "starter" | "pro" | "studio";
+export type MessageSender = "client" | "studio";
 
 type ProfileRow = {
   id: string;
@@ -54,6 +55,18 @@ type ClientRow = {
   email: string;
   phone: string | null;
   notes: string | null;
+  auth_user_id: string | null;
+  created_at: string;
+};
+
+type MessageRow = {
+  id: string;
+  studio_id: string;
+  client_id: string;
+  sender: MessageSender;
+  body: string;
+  attachments: Json;
+  read_at: string | null;
   created_at: string;
 };
 
@@ -173,6 +186,28 @@ export interface Database {
           }
         ];
       };
+      messages: {
+        Row: MessageRow;
+        Insert: Pick<MessageRow, "studio_id" | "client_id" | "sender" | "body"> &
+          Partial<Omit<MessageRow, "studio_id" | "client_id" | "sender" | "body">>;
+        Update: Partial<MessageRow>;
+        Relationships: [
+          {
+            foreignKeyName: "messages_studio_id_fkey";
+            columns: ["studio_id"];
+            isOneToOne: false;
+            referencedRelation: "studios";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };
@@ -180,6 +215,7 @@ export interface Database {
       specialty: Specialty;
       appointment_status: AppointmentStatus;
       plan_tier: PlanTier;
+      message_sender: MessageSender;
     };
     CompositeTypes: { [_ in never]: never };
   };

@@ -1,4 +1,4 @@
-import { Section, Text } from "@react-email/components";
+import { Link, Section, Text } from "@react-email/components";
 import * as React from "react";
 import { EmailLayout, emailStyles } from "./_layout";
 
@@ -9,6 +9,7 @@ export type BookingConfirmedClientProps = {
   appointmentDateLabel: string; // déjà formaté FR
   depositAmountLabel: string;   // ex: "50,00 €"
   projectDescription?: string | null;
+  portalUrl: string;
 };
 
 export function BookingConfirmedClientEmail({
@@ -18,6 +19,7 @@ export function BookingConfirmedClientEmail({
   appointmentDateLabel,
   depositAmountLabel,
   projectDescription,
+  portalUrl,
 }: BookingConfirmedClientProps) {
   return (
     <EmailLayout
@@ -51,14 +53,18 @@ export function BookingConfirmedClientEmail({
       </Section>
 
       <Text style={emailStyles.p}>
-        On t'enverra un SMS de rappel la veille du rendez-vous. D'ici là,
-        si tu as une question ou besoin de modifier ton créneau, réponds
-        directement à cet email.
+        Pour discuter du projet directement avec {studioName} (références,
+        questions, etc.), retrouve ton espace personnel Inklee :
       </Text>
 
-      <Text style={emailStyles.small}>
-        Les conditions d'annulation : ton acompte est remboursable si tu
-        annules au moins 72h avant le rendez-vous.
+      <Link href={portalUrl} style={emailStyles.button}>
+        Accéder à mon espace →
+      </Link>
+
+      <Text style={{ ...emailStyles.small, marginTop: "24px" }}>
+        On t'enverra aussi un SMS de rappel la veille du rendez-vous.
+        Conditions d'annulation : ton acompte est remboursable si tu annules
+        au moins 72h avant.
       </Text>
     </EmailLayout>
   );

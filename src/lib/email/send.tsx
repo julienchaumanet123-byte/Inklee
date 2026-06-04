@@ -63,6 +63,7 @@ export async function sendBookingConfirmedToClient(appointmentId: string) {
         appointmentDateLabel={formatDateTime(appt.starts_at)}
         depositAmountLabel={formatPrice(Number(appt.deposit_amount))}
         projectDescription={appt.project_description}
+        portalUrl={`${APP_URL}/portal/login`}
       />
     );
 
