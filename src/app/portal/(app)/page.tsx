@@ -78,14 +78,25 @@ export default async function PortalHomePage() {
           Tes studios
         </h2>
         {clients.length === 0 ? (
-          <Card>
-            <CardContent className="py-10 text-center text-ink-400">
-              <p>Tu n'as pas encore réservé chez un studio sur Inklee.</p>
-              <p className="text-sm mt-2">
-                Demande à ton tatoueur son lien Inklee.
-              </p>
-            </CardContent>
-          </Card>
+          <Link
+            href="/portal/discover"
+            className="block rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.06] via-transparent to-white/[0.02] p-6 hover:border-white/30 transition-all gold-glow grain"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                <ArrowRight className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-medium text-foreground mb-1">
+                  Découvre les tatoueurs sur Inklee
+                </div>
+                <div className="text-sm text-ink-300">
+                  Parcours tous les studios inscrits, trouve celui qui te
+                  correspond et réserve ton premier rendez-vous.
+                </div>
+              </div>
+            </div>
+          </Link>
         ) : (
           <div className="space-y-3">
             {clients.map((c) => (

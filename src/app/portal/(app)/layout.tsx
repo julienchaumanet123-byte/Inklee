@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Home, MessageCircle, Calendar, User } from "lucide-react";
+import { Home, MessageCircle, Calendar, User, Compass } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getUnreadCountForAuthUser } from "@/lib/portal-data";
 import { Button } from "@/components/ui/button";
@@ -42,10 +42,13 @@ export default async function PortalLayout({
           <PortalNavLink href="/portal" exact label="Accueil">
             <Home className="w-5 h-5" />
           </PortalNavLink>
+          <PortalNavLink href="/portal/discover" label="Tatoueurs">
+            <Compass className="w-5 h-5" />
+          </PortalNavLink>
           <PortalNavLink href="/portal/messages" label="Messages" badge={unreadCount}>
             <MessageCircle className="w-5 h-5" />
           </PortalNavLink>
-          <PortalNavLink href="/portal/appointments" label="Rendez-vous">
+          <PortalNavLink href="/portal/appointments" label="RDV">
             <Calendar className="w-5 h-5" />
           </PortalNavLink>
           <PortalNavLink href="/portal/profile" label="Profil">
