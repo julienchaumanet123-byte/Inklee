@@ -1,19 +1,23 @@
 import { redirect } from "next/navigation";
-import { Check, X, Sparkles } from "lucide-react";
+import { Check, X, Sparkles, ExternalLink, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { PLANS, FEATURE_LABELS, type PlanFeature } from "@/lib/plans";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { changePlan } from "./actions";
+import { subscribeAction, openBillingPortal } from "./actions";
 import type { PlanTier } from "@/types/database";
 
 export const dynamic = "force-dynamic";
 
 const PLAN_ORDER: PlanTier[] = ["starter", "pro", "studio"];
 
-export default async function BillingPage() {
+export default async function BillingPage({
+  searchParams,
+}: {
+  searchParams: { subscribed?: string };
+}) {
   const supabase = createClient();
   const {
     data: { user },
@@ -22,32 +26,43 @@ export default async function BillingPage() {
 
   const { data: studio } = await supabase
     .from("studios")
-    .select("plan_tier")
+    .select("plan_tier, stripe_customer_id, stripe_subscription_id")
     .eq("owner_id", user.id)
     .maybeSingle();
   if (!studio) redirect("/onboarding");
 
   const currentPlan = studio.plan_tier;
+  const hasSubscription = Boolean(studio.stripe_subscription_id);
 
   return (
     <div className="p-6 md:p-10 max-w-5xl">
-      <div className="mb-10">
-        <h1 className="font-display text-4xl font-bold mb-1">Abonnement</h1>
-        <p className="text-ink-300">
-          Tu es actuellement sur le plan{" "}
-          <span className="text-foreground font-medium">
-            {PLANS[currentPlan].label}
-          </span>
-          .
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
+        <div>
+          <h1 className="font-display text-4xl font-bold mb-1">Abonnement</h1>
+          <p className="text-ink-300">
+            Tu es actuellement sur le plan{" "}
+            <span className="text-foreground font-medium">
+              {PLANS[currentPlan].label}
+            </span>
+            .
+          </p>
+        </div>
+        {hasSubscription && (
+          <form action={openBillingPortal}>
+            <Button type="submit" variant="outline">
+              <ExternalLink className="w-4 h-4" />
+              Gérer mon abonnement
+            </Button>
+          </form>
+        )}
       </div>
 
-      {/* TODO Stripe Subscription — voir actions.ts */}
-      <div className="rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-200 text-xs px-4 py-2 mb-8">
-        🚧 Démo MVP : le changement de plan est instantané et gratuit
-        pour l'instant. Quand Stripe Subscription sera branché, ce passera
-        par un vrai checkout.
-      </div>
+      {searchParams.subscribed && (
+        <div className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 mb-8 flex items-center gap-2 text-emerald-400">
+          <CheckCircle2 className="w-5 h-5" />
+          Bienvenue dans ton nouveau plan ! Ton abonnement est actif.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {PLAN_ORDER.map((tier) => {
@@ -130,8 +145,19 @@ export default async function BillingPage() {
                   <Button asChild variant="outline" className="w-full">
                     <a href="mailto:hello@inklee.fr">Nous contacter</a>
                   </Button>
+                ) : hasSubscription ? (
+                  // Si déjà abonné, on passe par le Portal Stripe pour changer
+                  <form action={openBillingPortal}>
+                    <Button
+                      type="submit"
+                      variant={plan.highlight ? "default" : "outline"}
+                      className="w-full"
+                    >
+                      Passer à {plan.label}
+                    </Button>
+                  </form>
                 ) : (
-                  <form action={changePlan}>
+                  <form action={subscribeAction}>
                     <input type="hidden" name="plan" value={tier} />
                     <Button
                       type="submit"
