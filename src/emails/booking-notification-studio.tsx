@@ -1,4 +1,4 @@
-import { Button, Section, Text } from "@react-email/components";
+import { Link, Section, Text } from "@react-email/components";
 import * as React from "react";
 import { EmailLayout, emailStyles } from "./_layout";
 
@@ -55,9 +55,9 @@ export function BookingNotificationStudioEmail({
         )}
       </Section>
 
-      <Button style={emailStyles.button} href={dashboardUrl}>
+      <Link href={dashboardUrl} style={emailStyles.button}>
         Voir le rendez-vous →
-      </Button>
+      </Link>
     </EmailLayout>
   );
 }
