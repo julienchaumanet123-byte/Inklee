@@ -7,14 +7,23 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const explicitNext = searchParams.get("next");
 
+  // Si on vient du flow portail client, on rebascule sur /portal/login
+  // en cas de souci. Sinon /login (pro).
+  const isClientFlow = explicitNext?.startsWith("/portal");
+  const errorRedirect = isClientFlow
+    ? `${origin}/portal/login?error=auth_callback_failed`
+    : `${origin}/login?error=auth_callback_failed`;
+
   if (!code) {
-    return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
+    console.error("[auth/callback] no code in query", { explicitNext });
+    return NextResponse.redirect(errorRedirect);
   }
 
   const supabase = createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
+    console.error("[auth/callback] exchangeCodeForSession failed", error);
+    return NextResponse.redirect(errorRedirect);
   }
 
   // Si on a un `next` explicite, on l'utilise (cas magic link portail client)
@@ -41,5 +50,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/portal`);
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
+  return NextResponse.redirect(errorRedirect);
 }
