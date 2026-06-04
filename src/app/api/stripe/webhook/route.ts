@@ -9,12 +9,21 @@ import {
 
 export const runtime = "nodejs";
 
-// Stripe webhook : reçoit checkout.session.completed et marque le RDV confirmé.
+// Stripe webhook : reçoit les events de Stripe.
 //
-// Configuration côté Stripe (dashboard → Developers → Webhooks) :
+// IMPORTANT — Stripe Connect :
+// Les events checkout.session.completed pour les bookings d'acompte sont
+// déclenchés sur les COMPTES CONNECTÉS (les studios), pas sur le compte
+// plateforme. Il faut que le webhook Stripe écoute aussi les "Events on
+// Connected accounts" dans le dashboard Stripe.
+//
+// Configuration côté Stripe :
 //   - URL : https://inklee.fr/api/stripe/webhook (en local : `stripe listen`)
-//   - Events : checkout.session.completed, checkout.session.expired,
-//              payment_intent.payment_failed
+//   - Events on your account :
+//       account.updated (pour suivre l'état d'onboarding des studios)
+//   - Events on Connected accounts :
+//       checkout.session.completed (acomptes payés)
+//       checkout.session.expired
 //   - Copier le signing secret dans STRIPE_WEBHOOK_SECRET
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -59,7 +68,6 @@ export async function POST(req: NextRequest) {
         })
         .eq("id", appointmentId);
 
-      // Envoi des emails en parallèle (non-bloquant si échec)
       await Promise.allSettled([
         sendBookingConfirmedToClient(appointmentId),
         sendBookingNotificationToStudio(appointmentId),
@@ -78,6 +86,19 @@ export async function POST(req: NextRequest) {
         .eq("id", appointmentId)
         .eq("status", "pending")
         .eq("deposit_paid", false);
+      break;
+    }
+
+    case "account.updated": {
+      const account = event.data.object as Stripe.Account;
+      // Sync l'état d'onboarding Stripe Connect en DB
+      await supabase
+        .from("studios")
+        .update({
+          stripe_charges_enabled: account.charges_enabled,
+          stripe_details_submitted: account.details_submitted,
+        })
+        .eq("stripe_account_id", account.id);
       break;
     }
 

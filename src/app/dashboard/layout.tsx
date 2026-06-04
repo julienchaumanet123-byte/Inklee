@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   ImageIcon,
   CreditCard,
+  Banknote,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const NAV = [
   { href: "/dashboard/agenda", label: "Agenda", icon: Calendar },
   { href: "/dashboard/clients", label: "Clients", icon: Users },
   { href: "/dashboard/portfolio", label: "Portfolio", icon: ImageIcon },
+  { href: "/dashboard/payments", label: "Paiements", icon: Banknote },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
   { href: "/dashboard/billing", label: "Abonnement", icon: CreditCard },
 ] as const;

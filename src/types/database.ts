@@ -43,6 +43,9 @@ type StudioRow = {
   plan_tier: PlanTier;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  stripe_account_id: string | null;
+  stripe_charges_enabled: boolean;
+  stripe_details_submitted: boolean;
   instagram_handle: string | null;
   website_url: string | null;
   phone: string | null;

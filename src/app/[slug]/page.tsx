@@ -124,28 +124,43 @@ export default async function StudioPublicPage({
       {/* Booking */}
       <section className="container max-w-4xl pb-32">
         <div className="rounded-2xl border border-ink-800 bg-ink-900/40 p-6 md:p-10">
-          <div className="mb-8">
-            <h2 className="font-display text-3xl font-bold mb-2">
-              Réserver un créneau
-            </h2>
-            <p className="text-ink-300">
-              Choisis ta date et ton créneau. L'acompte de{" "}
-              <span className="text-gold font-medium">
-                {formatPrice(studio.deposit_amount)}
-              </span>{" "}
-              est payé en ligne pour bloquer le rendez-vous.
-            </p>
-          </div>
+          {!studio.stripe_charges_enabled ? (
+            <div className="text-center py-10">
+              <h2 className="font-display text-3xl font-bold mb-3">
+                Réservation bientôt disponible
+              </h2>
+              <p className="text-ink-300 max-w-md mx-auto">
+                {studio.name} finalise la configuration de son moyen de
+                paiement. Reviens dans quelques jours pour réserver.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="mb-8">
+                <h2 className="font-display text-3xl font-bold mb-2">
+                  Réserver un créneau
+                </h2>
+                <p className="text-ink-300">
+                  Choisis ta date et ton créneau. L'acompte de{" "}
+                  <span className="text-gold font-medium">
+                    {formatPrice(studio.deposit_amount)}
+                  </span>{" "}
+                  est payé en ligne pour bloquer le rendez-vous.
+                </p>
+              </div>
 
-          <SlotPicker slug={studio.slug} availability={availability} />
+              <SlotPicker slug={studio.slug} availability={availability} />
 
-          <div className="mt-10 pt-6 border-t border-ink-800/50 flex items-start gap-3 text-sm text-ink-400">
-            <ShieldCheck className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-            <p>
-              Paiement sécurisé via Stripe. Acompte remboursable en cas
-              d'annulation 72h avant le rendez-vous.
-            </p>
-          </div>
+              <div className="mt-10 pt-6 border-t border-ink-800/50 flex items-start gap-3 text-sm text-ink-400">
+                <ShieldCheck className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                <p>
+                  Paiement sécurisé via Stripe directement chez {studio.name}.
+                  Acompte remboursable en cas d'annulation 72h avant le
+                  rendez-vous.
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </section>
     </main>

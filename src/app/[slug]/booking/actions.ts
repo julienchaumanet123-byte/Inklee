@@ -50,12 +50,20 @@ export async function createBooking(
   // 1. Studio
   const { data: studio, error: studioErr } = await supabase
     .from("studios")
-    .select("id, name, deposit_amount, slug")
+    .select("id, name, deposit_amount, slug, stripe_account_id, stripe_charges_enabled")
     .eq("slug", data.slug)
     .maybeSingle();
 
   if (studioErr || !studio) {
     return { error: "Studio introuvable." };
+  }
+
+  // Gate : Stripe Connect doit être configuré pour accepter les paiements
+  if (!studio.stripe_account_id || !studio.stripe_charges_enabled) {
+    return {
+      error:
+        "Le studio n'a pas encore configuré son moyen de paiement. Réessaye dans quelques jours.",
+    };
   }
 
   // 2. Upload référence image (si fournie)
@@ -125,33 +133,40 @@ export async function createBooking(
     return { error: "Impossible de créer le rendez-vous." };
   }
 
-  // 5. Stripe Checkout session
+  // 5. Stripe Checkout session — DIRECT CHARGE sur le compte du studio
+  // Le client paie directement le studio (sans passer par Inklee).
+  // L'argent va sur le compte Stripe Connect du tatoueur.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: ["card"],
-    customer_email: data.email,
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: "eur",
-          unit_amount: Math.round(Number(studio.deposit_amount) * 100),
-          product_data: {
-            name: `Acompte — ${studio.name}`,
-            description: `Rendez-vous le ${startsAt.toLocaleString("fr-FR")}`,
+  const session = await stripe.checkout.sessions.create(
+    {
+      mode: "payment",
+      payment_method_types: ["card"],
+      customer_email: data.email,
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: "eur",
+            unit_amount: Math.round(Number(studio.deposit_amount) * 100),
+            product_data: {
+              name: `Acompte — ${studio.name}`,
+              description: `Rendez-vous le ${startsAt.toLocaleString("fr-FR")}`,
+            },
           },
         },
+      ],
+      metadata: {
+        appointment_id: appointment.id,
+        studio_id: studio.id,
+        client_id: client.id,
       },
-    ],
-    metadata: {
-      appointment_id: appointment.id,
-      studio_id: studio.id,
-      client_id: client.id,
+      success_url: `${appUrl}/${studio.slug}/booking/success?session_id={CHECKOUT_SESSION_ID}&appointment_id=${appointment.id}`,
+      cancel_url: `${appUrl}/${studio.slug}/booking/cancelled?appointment_id=${appointment.id}`,
     },
-    success_url: `${appUrl}/${studio.slug}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${appUrl}/${studio.slug}/booking/cancelled?appointment_id=${appointment.id}`,
-  });
+    {
+      stripeAccount: studio.stripe_account_id,
+    }
+  );
 
   if (!session.url) {
     return { error: "Impossible d'initialiser le paiement." };

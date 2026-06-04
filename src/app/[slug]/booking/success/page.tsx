@@ -2,7 +2,6 @@ import Link from "next/link";
 import { CheckCircle2, Mail, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { stripe } from "@/lib/stripe";
 import { formatDateTime, formatPrice } from "@/lib/utils";
 import { autoLoginToPortal } from "./actions";
 
@@ -13,54 +12,49 @@ export default async function BookingSuccessPage({
   searchParams,
 }: {
   params: { slug: string };
-  searchParams: { session_id?: string };
+  searchParams: { session_id?: string; appointment_id?: string };
 }) {
   let appointmentDate: Date | null = null;
   let amount: number | null = null;
   let clientFirstName: string | null = null;
   let studioName: string | null = null;
 
-  if (searchParams.session_id) {
-    try {
-      const session = await stripe.checkout.sessions.retrieve(searchParams.session_id);
-      const appointmentId = session.metadata?.appointment_id;
+  // On utilise appointment_id (présent dans le success_url) plutôt que
+  // session_id Stripe car la session est sur le compte Connect du studio.
+  const appointmentId = searchParams.appointment_id ?? null;
 
-      if (appointmentId) {
-        const supabase = createAdminClient();
-        const { data: appt } = await supabase
-          .from("appointments")
-          .select("starts_at, deposit_amount, client_id, studio_id")
-          .eq("id", appointmentId)
-          .maybeSingle();
-        if (appt) {
-          appointmentDate = new Date(appt.starts_at);
-          amount = appt.deposit_amount;
+  if (appointmentId) {
+    const supabase = createAdminClient();
+    const { data: appt } = await supabase
+      .from("appointments")
+      .select("starts_at, deposit_amount, client_id, studio_id")
+      .eq("id", appointmentId)
+      .maybeSingle();
+    if (appt) {
+      appointmentDate = new Date(appt.starts_at);
+      amount = appt.deposit_amount;
 
-          const [{ data: client }, { data: studio }] = await Promise.all([
-            supabase
-              .from("clients")
-              .select("first_name")
-              .eq("id", appt.client_id)
-              .maybeSingle(),
-            supabase
-              .from("studios")
-              .select("name")
-              .eq("id", appt.studio_id)
-              .maybeSingle(),
-          ]);
-          clientFirstName = client?.first_name ?? null;
-          studioName = studio?.name ?? null;
-        }
-      }
-    } catch {
-      // Session expirée ou inexistante — on affiche l'écran générique
+      const [{ data: client }, { data: studio }] = await Promise.all([
+        supabase
+          .from("clients")
+          .select("first_name")
+          .eq("id", appt.client_id)
+          .maybeSingle(),
+        supabase
+          .from("studios")
+          .select("name")
+          .eq("id", appt.studio_id)
+          .maybeSingle(),
+      ]);
+      clientFirstName = client?.first_name ?? null;
+      studioName = studio?.name ?? null;
     }
   }
 
   async function handleEnterPortal() {
     "use server";
-    if (searchParams.session_id) {
-      await autoLoginToPortal(searchParams.session_id);
+    if (appointmentId) {
+      await autoLoginToPortal(appointmentId);
     }
   }
 
