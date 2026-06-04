@@ -1,4 +1,5 @@
 import * as React from "react";
+import { render } from "@react-email/render";
 import { resend, FROM_EMAIL } from "./client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatDateTime, formatPrice } from "@/lib/utils";
@@ -54,20 +55,22 @@ export async function sendBookingConfirmedToClient(appointmentId: string) {
     if (!bundle) return;
     const { appt, client, studio } = bundle;
 
+    const html = await render(
+      <BookingConfirmedClientEmail
+        clientFirstName={client.first_name}
+        studioName={studio.name}
+        studioCity={studio.city}
+        appointmentDateLabel={formatDateTime(appt.starts_at)}
+        depositAmountLabel={formatPrice(Number(appt.deposit_amount))}
+        projectDescription={appt.project_description}
+      />
+    );
+
     await resend.emails.send({
       from: FROM_EMAIL,
       to: client.email,
       subject: `Ton rendez-vous chez ${studio.name} est confirmé`,
-      react: (
-        <BookingConfirmedClientEmail
-          clientFirstName={client.first_name}
-          studioName={studio.name}
-          studioCity={studio.city}
-          appointmentDateLabel={formatDateTime(appt.starts_at)}
-          depositAmountLabel={formatPrice(Number(appt.deposit_amount))}
-          projectDescription={appt.project_description}
-        />
-      ),
+      html,
     });
   } catch (err) {
     console.error("[email] sendBookingConfirmedToClient failed", err);
@@ -83,22 +86,24 @@ export async function sendBookingNotificationToStudio(appointmentId: string) {
 
     const studioFirstName = (owner.full_name ?? "").split(" ")[0] || "salut";
 
+    const html = await render(
+      <BookingNotificationStudioEmail
+        studioFirstName={studioFirstName}
+        clientFullName={`${client.first_name} ${client.last_name}`}
+        clientEmail={client.email}
+        clientPhone={client.phone}
+        appointmentDateLabel={formatDateTime(appt.starts_at)}
+        depositAmountLabel={formatPrice(Number(appt.deposit_amount))}
+        projectDescription={appt.project_description}
+        dashboardUrl={`${APP_URL}/dashboard/appointments/${appt.id}`}
+      />
+    );
+
     await resend.emails.send({
       from: FROM_EMAIL,
       to: owner.email,
       subject: `Nouvelle réservation : ${client.first_name} ${client.last_name}`,
-      react: (
-        <BookingNotificationStudioEmail
-          studioFirstName={studioFirstName}
-          clientFullName={`${client.first_name} ${client.last_name}`}
-          clientEmail={client.email}
-          clientPhone={client.phone}
-          appointmentDateLabel={formatDateTime(appt.starts_at)}
-          depositAmountLabel={formatPrice(Number(appt.deposit_amount))}
-          projectDescription={appt.project_description}
-          dashboardUrl={`${APP_URL}/dashboard/appointments/${appt.id}`}
-        />
-      ),
+      html,
     });
   } catch (err) {
     console.error("[email] sendBookingNotificationToStudio failed", err);
@@ -111,17 +116,19 @@ export async function sendBookingCancelledToClient(appointmentId: string) {
     if (!bundle) return;
     const { appt, client, studio } = bundle;
 
+    const html = await render(
+      <BookingCancelledEmail
+        clientFirstName={client.first_name}
+        studioName={studio.name}
+        appointmentDateLabel={formatDateTime(appt.starts_at)}
+      />
+    );
+
     await resend.emails.send({
       from: FROM_EMAIL,
       to: client.email,
       subject: `Rendez-vous annulé — ${studio.name}`,
-      react: (
-        <BookingCancelledEmail
-          clientFirstName={client.first_name}
-          studioName={studio.name}
-          appointmentDateLabel={formatDateTime(appt.starts_at)}
-        />
-      ),
+      html,
     });
   } catch (err) {
     console.error("[email] sendBookingCancelledToClient failed", err);
