@@ -26,9 +26,16 @@ export function Navbar() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/portal/login"
+            className="hidden sm:inline-flex text-sm text-ink-300 hover:text-foreground transition-colors px-2"
+          >
+            Espace client
+          </Link>
+          <div className="hidden sm:block w-px h-5 bg-ink-700" />
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="/login">Connexion</Link>
+            <Link href="/login">Connexion pro</Link>
           </Button>
           <Button asChild size="sm">
             <Link href="/signup">Essai gratuit</Link>
