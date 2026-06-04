@@ -48,6 +48,12 @@ export default async function PortalStudioPage({
   const studio = Array.isArray(client.studios) ? client.studios[0] : client.studios;
   if (!studio) notFound();
 
+  const { data: portfolio } = await admin
+    .from("portfolio_images")
+    .select("id, image_url, caption")
+    .eq("studio_id", studio.id)
+    .order("position", { ascending: true });
+
   return (
     <div>
       {/* Cover (gradient placeholder pour l'instant) */}
@@ -169,25 +175,45 @@ export default async function PortalStudioPage({
           </CardContent>
         </Card>
 
-        {/* Portfolio (placeholder) */}
+        {/* Portfolio */}
         <Card className="mb-4">
           <CardContent className="pt-6">
             <div className="text-xs uppercase tracking-wider text-ink-400 mb-3">
-              Portfolio
+              Portfolio ({portfolio?.length ?? 0})
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square rounded-md bg-gradient-to-br from-ink-800 to-ink-900 flex items-center justify-center grain"
-                >
-                  <ImageIcon className="w-5 h-5 text-ink-600" />
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-ink-500 mt-3 italic">
-              Bientôt : {studio.name} pourra publier son portfolio ici.
-            </p>
+            {!portfolio || portfolio.length === 0 ? (
+              <div className="grid grid-cols-3 gap-1.5">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-md bg-gradient-to-br from-ink-800 to-ink-900 flex items-center justify-center grain"
+                  >
+                    <ImageIcon className="w-5 h-5 text-ink-600" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-1.5">
+                {portfolio.map((img) => (
+                  <div
+                    key={img.id}
+                    className="relative aspect-square rounded-md overflow-hidden bg-ink-900"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img.image_url}
+                      alt={img.caption ?? ""}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            {(!portfolio || portfolio.length === 0) && (
+              <p className="text-xs text-ink-500 mt-3 italic">
+                {studio.name} n'a pas encore publié son portfolio.
+              </p>
+            )}
           </CardContent>
         </Card>
 

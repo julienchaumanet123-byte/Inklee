@@ -102,6 +102,16 @@ type ConsentRow = {
   created_at: string;
 };
 
+type PortfolioImageRow = {
+  id: string;
+  studio_id: string;
+  image_url: string;
+  storage_path: string;
+  caption: string | null;
+  position: number;
+  created_at: string;
+};
+
 export interface Database {
   public: {
     Tables: {
@@ -209,6 +219,23 @@ export interface Database {
             columns: ["client_id"];
             isOneToOne: false;
             referencedRelation: "clients";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      portfolio_images: {
+        Row: PortfolioImageRow;
+        Insert: Pick<PortfolioImageRow, "studio_id" | "image_url" | "storage_path"> &
+          Partial<
+            Omit<PortfolioImageRow, "studio_id" | "image_url" | "storage_path">
+          >;
+        Update: Partial<PortfolioImageRow>;
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_images_studio_id_fkey";
+            columns: ["studio_id"];
+            isOneToOne: false;
+            referencedRelation: "studios";
             referencedColumns: ["id"];
           }
         ];

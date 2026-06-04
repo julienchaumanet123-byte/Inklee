@@ -33,13 +33,21 @@ export default async function StudioPublicPage({
   const horizon = new Date();
   horizon.setDate(horizon.getDate() + 14);
 
-  const { data: bookedRaw } = await supabase
-    .from("appointments")
-    .select("starts_at, ends_at, status")
-    .eq("studio_id", studio.id)
-    .gte("starts_at", new Date().toISOString())
-    .lte("starts_at", horizon.toISOString())
-    .in("status", ["pending", "confirmed"]);
+  const [{ data: bookedRaw }, { data: portfolio }] = await Promise.all([
+    supabase
+      .from("appointments")
+      .select("starts_at, ends_at, status")
+      .eq("studio_id", studio.id)
+      .gte("starts_at", new Date().toISOString())
+      .lte("starts_at", horizon.toISOString())
+      .in("status", ["pending", "confirmed"]),
+    supabase
+      .from("portfolio_images")
+      .select("id, image_url, caption")
+      .eq("studio_id", studio.id)
+      .order("position", { ascending: true })
+      .limit(12),
+  ]);
 
   const booked = bookedRaw ?? [];
 
@@ -88,6 +96,30 @@ export default async function StudioPublicPage({
           )}
         </div>
       </section>
+
+      {/* Portfolio */}
+      {portfolio && portfolio.length > 0 && (
+        <section className="container max-w-5xl pb-16">
+          <h2 className="font-display text-2xl md:text-3xl font-bold mb-6">
+            Portfolio
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+            {portfolio.map((img) => (
+              <div
+                key={img.id}
+                className="relative aspect-square rounded-lg overflow-hidden bg-ink-900 border border-ink-800"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={img.image_url}
+                  alt={img.caption ?? ""}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Booking */}
       <section className="container max-w-4xl pb-32">

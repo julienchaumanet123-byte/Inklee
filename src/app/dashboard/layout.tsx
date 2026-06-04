@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Calendar, Users, Settings, LayoutDashboard } from "lucide-react";
+import {
+  Calendar,
+  Users,
+  Settings,
+  LayoutDashboard,
+  ImageIcon,
+  CreditCard,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { SidebarLink } from "./sidebar-link";
@@ -9,7 +16,9 @@ const NAV = [
   { href: "/dashboard", label: "Accueil", icon: LayoutDashboard },
   { href: "/dashboard/agenda", label: "Agenda", icon: Calendar },
   { href: "/dashboard/clients", label: "Clients", icon: Users },
+  { href: "/dashboard/portfolio", label: "Portfolio", icon: ImageIcon },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/billing", label: "Abonnement", icon: CreditCard },
 ] as const;
 
 export default async function DashboardLayout({
