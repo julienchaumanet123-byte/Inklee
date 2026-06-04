@@ -43,6 +43,11 @@ type StudioRow = {
   plan_tier: PlanTier;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  instagram_handle: string | null;
+  website_url: string | null;
+  phone: string | null;
+  address: string | null;
+  opening_hours: Json;
   created_at: string;
   updated_at: string;
 };
@@ -210,7 +215,20 @@ export interface Database {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      get_user_id_by_email: {
+        Args: { p_email: string };
+        Returns: string;
+      };
+      owns_studio: {
+        Args: { p_studio_id: string };
+        Returns: boolean;
+      };
+      is_client: {
+        Args: { p_client_id: string };
+        Returns: boolean;
+      };
+    };
     Enums: {
       specialty: Specialty;
       appointment_status: AppointmentStatus;

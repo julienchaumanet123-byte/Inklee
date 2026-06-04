@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
+import { ensureClientAuthUser } from "@/lib/email/portal-link";
 
 const bookingSchema = z.object({
   slug: z.string().min(1),
@@ -77,7 +78,11 @@ export async function createBooking(
     }
   }
 
-  // 3. Find or create client (upsert sur unique (studio_id, email))
+  // 3a. Crée/récupère silencieusement le compte auth du client
+  // (le trigger SQL liera automatiquement les fiches clients à cet auth user)
+  await ensureClientAuthUser(data.email, `${data.firstName} ${data.lastName}`);
+
+  // 3b. Find or create client (upsert sur unique (studio_id, email))
   const { data: client, error: clientErr } = await supabase
     .from("clients")
     .upsert(

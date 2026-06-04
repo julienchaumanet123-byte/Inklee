@@ -53,14 +53,24 @@ export default async function ConversationPage({
         >
           <ArrowLeft className="w-5 h-5 text-ink-300" />
         </Link>
-        <div className="flex-1 min-w-0">
-          <div className="font-medium text-foreground truncate">{studio.name}</div>
-          {studio.city && (
-            <div className="flex items-center gap-1 text-xs text-ink-400">
-              <MapPin className="w-3 h-3" /> {studio.city}
-            </div>
-          )}
-        </div>
+        <Link
+          href={`/portal/studios/${client.id}`}
+          className="flex-1 min-w-0 flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
+          <div className="w-9 h-9 rounded-full bg-ink-800 flex items-center justify-center shrink-0">
+            <span className="font-display text-sm text-ink-300 font-bold">
+              {studio.name.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <div className="font-medium text-foreground truncate">{studio.name}</div>
+            {studio.city && (
+              <div className="flex items-center gap-1 text-xs text-ink-400">
+                <MapPin className="w-3 h-3" /> {studio.city}
+              </div>
+            )}
+          </div>
+        </Link>
       </div>
 
       <ChatThread

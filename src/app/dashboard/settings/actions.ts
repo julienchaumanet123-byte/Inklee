@@ -10,6 +10,13 @@ const settingsSchema = z.object({
   bio: z.string().max(500, "Max 500 caractères").optional(),
   specialty: z.enum(["tattoo", "piercing", "both"]),
   depositAmount: z.coerce.number().min(0, "Doit être positif").max(10000),
+  address: z.string().max(200).optional(),
+  phone: z.string().max(30).optional(),
+  instagramHandle: z.string().max(50).optional(),
+  websiteUrl: z.string().max(200).optional().refine(
+    (v) => !v || /^https?:\/\//.test(v),
+    "Doit commencer par https:// ou http://"
+  ),
 });
 
 export type SettingsState = {
@@ -28,6 +35,10 @@ export async function updateStudio(
     bio: formData.get("bio"),
     specialty: formData.get("specialty"),
     depositAmount: formData.get("depositAmount"),
+    address: formData.get("address"),
+    phone: formData.get("phone"),
+    instagramHandle: formData.get("instagramHandle"),
+    websiteUrl: formData.get("websiteUrl"),
   });
 
   if (!parsed.success) {
@@ -53,6 +64,11 @@ export async function updateStudio(
       bio: parsed.data.bio || null,
       specialty: parsed.data.specialty,
       deposit_amount: parsed.data.depositAmount,
+      address: parsed.data.address || null,
+      phone: parsed.data.phone || null,
+      instagram_handle:
+        parsed.data.instagramHandle?.replace(/^@/, "") || null,
+      website_url: parsed.data.websiteUrl || null,
     })
     .eq("owner_id", user.id);
 

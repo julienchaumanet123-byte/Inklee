@@ -91,12 +91,17 @@ export default async function PortalHomePage() {
             {clients.map((c) => (
               <Link
                 key={c.id}
-                href={`/portal/messages/${c.id}`}
+                href={`/portal/studios/${c.id}`}
                 className="block rounded-xl border border-ink-800 bg-ink-900/40 p-5 hover:border-ink-700 hover:bg-ink-900/60 transition-all"
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-foreground">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-ink-800 flex items-center justify-center shrink-0">
+                    <span className="font-display text-xl text-ink-300 font-bold">
+                      {c.studio.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-foreground truncate">
                       {c.studio.name}
                     </div>
                     {c.studio.city && (
@@ -105,10 +110,7 @@ export default async function PortalHomePage() {
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-ink-300">
-                    <MessageCircle className="w-4 h-4" />
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
+                  <ArrowRight className="w-4 h-4 text-ink-500 shrink-0" />
                 </div>
               </Link>
             ))}

@@ -147,6 +147,56 @@ export function SettingsForm({ studio }: { studio: Studio }) {
 
         <Card>
           <CardHeader>
+            <CardTitle className="text-lg">Infos pratiques & réseaux</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="address">Adresse</Label>
+              <Input
+                id="address"
+                name="address"
+                defaultValue={studio.address ?? ""}
+                placeholder="12 rue de la Paix, 75001 Paris"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Téléphone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                defaultValue={studio.phone ?? ""}
+                placeholder="01 23 45 67 89"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="instagramHandle">Instagram</Label>
+              <Input
+                id="instagramHandle"
+                name="instagramHandle"
+                defaultValue={studio.instagram_handle ?? ""}
+                placeholder="ton.studio"
+              />
+              <p className="text-xs text-ink-400">Sans le @</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="websiteUrl">Site web</Label>
+              <Input
+                id="websiteUrl"
+                name="websiteUrl"
+                type="url"
+                defaultValue={studio.website_url ?? ""}
+                placeholder="https://ton-studio.com"
+              />
+              {state.fieldErrors?.websiteUrl && (
+                <p className="text-xs text-destructive">{state.fieldErrors.websiteUrl}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle className="text-lg">Acompte</CardTitle>
           </CardHeader>
           <CardContent>

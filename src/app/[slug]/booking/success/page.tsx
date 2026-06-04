@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { CheckCircle2, Mail, Bell } from "lucide-react";
+import { CheckCircle2, Mail, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 import { formatDateTime, formatPrice } from "@/lib/utils";
+import { autoLoginToPortal } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,8 @@ export default async function BookingSuccessPage({
 }) {
   let appointmentDate: Date | null = null;
   let amount: number | null = null;
+  let clientFirstName: string | null = null;
+  let studioName: string | null = null;
 
   if (searchParams.session_id) {
     try {
@@ -26,12 +29,27 @@ export default async function BookingSuccessPage({
         const supabase = createAdminClient();
         const { data: appt } = await supabase
           .from("appointments")
-          .select("starts_at, deposit_amount")
+          .select("starts_at, deposit_amount, client_id, studio_id")
           .eq("id", appointmentId)
           .maybeSingle();
         if (appt) {
           appointmentDate = new Date(appt.starts_at);
           amount = appt.deposit_amount;
+
+          const [{ data: client }, { data: studio }] = await Promise.all([
+            supabase
+              .from("clients")
+              .select("first_name")
+              .eq("id", appt.client_id)
+              .maybeSingle(),
+            supabase
+              .from("studios")
+              .select("name")
+              .eq("id", appt.studio_id)
+              .maybeSingle(),
+          ]);
+          clientFirstName = client?.first_name ?? null;
+          studioName = studio?.name ?? null;
         }
       }
     } catch {
@@ -39,59 +57,80 @@ export default async function BookingSuccessPage({
     }
   }
 
+  async function handleEnterPortal() {
+    "use server";
+    if (searchParams.session_id) {
+      await autoLoginToPortal(searchParams.session_id);
+    }
+  }
+
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
+    <main className="min-h-screen bg-background px-6 py-12 flex flex-col items-center justify-center">
       <div className="absolute inset-0 bg-radial-fade pointer-events-none" />
-      <div className="relative max-w-md w-full text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gold/10 border border-gold/30 mb-6 gold-glow">
-          <CheckCircle2 className="w-10 h-10 text-gold" />
+
+      <div className="relative max-w-lg w-full">
+        {/* Confirmation */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-white/5 border border-white/20 mb-6 gold-glow">
+            <CheckCircle2 className="w-10 h-10 text-foreground" />
+          </div>
+
+          <h1 className="font-display text-4xl md:text-5xl font-bold mb-3">
+            {clientFirstName ? `Merci ${clientFirstName} !` : "C'est confirmé."}
+          </h1>
+
+          {appointmentDate && studioName && (
+            <p className="text-lg text-ink-200 mb-1 text-balance">
+              Ton rendez-vous chez <strong className="text-foreground">{studioName}</strong> est confirmé pour le <span className="text-foreground">{formatDateTime(appointmentDate)}</span>.
+            </p>
+          )}
+
+          {amount !== null && (
+            <p className="text-sm text-ink-400 mt-3">
+              Acompte de {formatPrice(amount)} reçu ✓
+            </p>
+          )}
         </div>
 
-        <h1 className="font-display text-4xl md:text-5xl font-bold mb-4">
-          Rendez-vous confirmé.
-        </h1>
-
-        {appointmentDate && (
-          <p className="text-lg text-ink-200 mb-2">
-            On se retrouve le{" "}
-            <span className="text-gold">{formatDateTime(appointmentDate)}</span>.
-          </p>
-        )}
-
-        {amount !== null && (
-          <p className="text-ink-400 mb-8">
-            Acompte de {formatPrice(amount)} reçu.
-          </p>
-        )}
-
-        <div className="space-y-4 mb-10 text-left">
-          <div className="flex items-start gap-3 rounded-lg border border-ink-800 bg-ink-900/40 p-4">
-            <Mail className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-            <div>
-              <div className="font-medium text-foreground text-sm">
-                Email de confirmation envoyé
+        {/* CTA principal : portail */}
+        <form action={handleEnterPortal} className="mb-6">
+          <div className="rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.06] via-transparent to-white/[0.02] p-6 gold-glow grain">
+            <div className="flex items-start gap-3 mb-5">
+              <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                <MessageCircle className="w-5 h-5 text-foreground" />
               </div>
-              <div className="text-xs text-ink-400">
-                Vérifie ta boîte (et les spams).
+              <div>
+                <h2 className="font-display text-xl font-bold mb-1">
+                  Discute du projet avec {studioName ?? "ton tatoueur"}
+                </h2>
+                <p className="text-sm text-ink-300">
+                  On t'a créé un espace perso pour échanger des références,
+                  poser tes questions et suivre tes RDV. Un clic et tu y es.
+                </p>
               </div>
             </div>
+            <Button type="submit" size="lg" className="w-full">
+              Accéder à mon espace
+              <ArrowRight className="w-4 h-4" />
+            </Button>
           </div>
-          <div className="flex items-start gap-3 rounded-lg border border-ink-800 bg-ink-900/40 p-4">
-            <Bell className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-            <div>
-              <div className="font-medium text-foreground text-sm">
-                Rappel automatique J-1
-              </div>
-              <div className="text-xs text-ink-400">
-                On t'enverra un SMS la veille du rendez-vous.
-              </div>
-            </div>
-          </div>
+        </form>
+
+        {/* Email rappel */}
+        <div className="flex items-center gap-3 text-sm text-ink-400 mb-8">
+          <Mail className="w-4 h-4" />
+          On t'a aussi envoyé un récap par email.
         </div>
 
-        <Button asChild variant="outline" size="lg">
-          <Link href={`/${params.slug}`}>Retour au studio</Link>
-        </Button>
+        {/* Lien retour studio */}
+        <div className="text-center">
+          <Link
+            href={`/${params.slug}`}
+            className="text-sm text-ink-400 hover:text-foreground transition-colors"
+          >
+            ← Retour au studio
+          </Link>
+        </div>
       </div>
     </main>
   );
