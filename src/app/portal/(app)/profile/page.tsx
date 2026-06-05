@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
-import { Mail, Phone, Hash } from "lucide-react";
+import { Mail, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getClientsForAuthUser } from "@/lib/portal-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ProfileForm } from "./profile-form";
 
 export const dynamic = "force-dynamic";
 
@@ -17,61 +19,60 @@ export default async function PortalProfilePage() {
   const first = clients[0];
 
   return (
-    <div className="container max-w-2xl py-8 px-4">
+    <div className="container max-w-2xl py-6 px-4">
       <h1 className="font-display text-3xl font-bold mb-6">Mon profil</h1>
 
-      <Card className="mb-6">
+      <Card className="mb-4">
         <CardHeader>
-          <CardTitle className="text-lg">Identité</CardTitle>
+          <CardTitle className="text-lg">Mes infos</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm">
+        <CardContent>
           {first ? (
-            <div>
-              <div className="text-ink-400 text-xs mb-1">Nom complet</div>
-              <div className="text-foreground font-medium">
-                {first.first_name} {first.last_name}
-              </div>
-            </div>
-          ) : null}
-          <div>
-            <div className="text-ink-400 text-xs mb-1 flex items-center gap-1">
-              <Mail className="w-3 h-3" /> Email
-            </div>
-            <div className="text-foreground">{user.email}</div>
-          </div>
-          {first?.phone && (
-            <div>
-              <div className="text-ink-400 text-xs mb-1 flex items-center gap-1">
-                <Phone className="w-3 h-3" /> Téléphone
-              </div>
-              <div className="text-foreground">{first.phone}</div>
-            </div>
+            <ProfileForm
+              firstName={first.first_name}
+              lastName={first.last_name}
+              phone={first.phone}
+            />
+          ) : (
+            <p className="text-sm text-ink-400">
+              Tu n'as pas encore de fiche client. Réserve un RDV pour démarrer.
+            </p>
           )}
         </CardContent>
       </Card>
 
+      {/* Email (non éditable, lié à l'auth) */}
+      <Card className="mb-4">
+        <CardContent className="pt-5">
+          <div className="text-xs uppercase tracking-wider text-ink-400 mb-1.5">
+            Email de connexion
+          </div>
+          <div className="flex items-center gap-2 text-sm text-foreground">
+            <Mail className="w-4 h-4 text-ink-400" />
+            {user.email}
+          </div>
+          <p className="text-[11px] text-ink-500 mt-2">
+            Pour changer ton email, contacte hello@inklee.fr.
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Studios */}
       {clients.length > 0 && (
-        <Card>
+        <Card className="mb-4">
           <CardHeader>
             <CardTitle className="text-lg">Mes studios</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2 text-sm">
+            <ul className="divide-y divide-ink-800/50 -mx-6">
               {clients.map((c) => (
-                <li
-                  key={c.id}
-                  className="flex items-center justify-between py-2 border-b border-ink-800/50 last:border-0"
-                >
-                  <div>
-                    <div className="text-foreground">{c.studio.name}</div>
-                    {c.studio.city && (
-                      <div className="text-xs text-ink-400">{c.studio.city}</div>
-                    )}
+                <li key={c.id} className="px-6 py-3">
+                  <div className="text-sm font-medium text-foreground">
+                    {c.studio.name}
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-ink-500 font-mono">
-                    <Hash className="w-3 h-3" />
-                    {c.id.slice(0, 8)}
-                  </div>
+                  {c.studio.city && (
+                    <div className="text-xs text-ink-400">{c.studio.city}</div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -79,10 +80,13 @@ export default async function PortalProfilePage() {
         </Card>
       )}
 
-      <p className="text-center text-xs text-ink-500 mt-8">
-        Pour modifier ton nom ou ton téléphone, contacte directement ton studio
-        via les messages.
-      </p>
+      {/* Déconnexion */}
+      <form action="/auth/signout" method="post">
+        <Button type="submit" variant="outline" className="w-full">
+          <LogOut className="w-4 h-4" />
+          Se déconnecter
+        </Button>
+      </form>
     </div>
   );
 }

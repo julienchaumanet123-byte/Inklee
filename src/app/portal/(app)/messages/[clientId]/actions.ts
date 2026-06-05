@@ -7,13 +7,15 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const sendSchema = z.object({
   clientId: z.string().uuid(),
-  body: z.string().trim().min(1).max(2000),
+  body: z.string().trim().max(2000),
 });
+
+export type Attachment = { url: string; type: string };
 
 export async function sendClientMessage(formData: FormData) {
   const parsed = sendSchema.safeParse({
     clientId: formData.get("clientId"),
-    body: formData.get("body"),
+    body: (formData.get("body") as string | null) ?? "",
   });
   if (!parsed.success) return;
 
@@ -23,7 +25,6 @@ export async function sendClientMessage(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  // Vérifie que le client appartient bien à cet user, et récupère le studio_id
   const admin = createAdminClient();
   const { data: client } = await admin
     .from("clients")
@@ -33,11 +34,37 @@ export async function sendClientMessage(formData: FormData) {
     .maybeSingle();
   if (!client) return;
 
+  // Upload des éventuels fichiers joints
+  const attachments: Attachment[] = [];
+  const files = formData.getAll("attachments") as File[];
+  for (const file of files) {
+    if (!file || file.size === 0 || file.size > 10 * 1024 * 1024) continue;
+    if (!file.type.startsWith("image/")) continue;
+
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const path = `${client.studio_id}/${client.id}/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadErr } = await admin.storage
+      .from("chat-attachments")
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (uploadErr) {
+      console.error("[chat] upload failed", uploadErr);
+      continue;
+    }
+    const { data: pub } = admin.storage
+      .from("chat-attachments")
+      .getPublicUrl(path);
+    attachments.push({ url: pub.publicUrl, type: file.type });
+  }
+
+  // Si pas de body ET pas d'attachements, on n'envoie rien
+  if (!parsed.data.body.trim() && attachments.length === 0) return;
+
   await admin.from("messages").insert({
     studio_id: client.studio_id,
     client_id: client.id,
     sender: "client",
-    body: parsed.data.body,
+    body: parsed.data.body || (attachments.length > 0 ? "📎" : ""),
+    attachments,
   });
 
   revalidatePath(`/portal/messages/${client.id}`);
@@ -53,7 +80,6 @@ export async function markStudioMessagesRead(clientId: string) {
   if (!user) return;
 
   const admin = createAdminClient();
-  // Vérifie le ownership
   const { data: client } = await admin
     .from("clients")
     .select("id")
