@@ -6,6 +6,7 @@ import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Features } from "@/components/marketing/features";
 import { ClientShowcase } from "@/components/marketing/client-showcase";
 import { Pricing } from "@/components/marketing/pricing";
+import { Comparison } from "@/components/marketing/comparison";
 import { Testimonials } from "@/components/marketing/testimonials";
 import { FAQ } from "@/components/marketing/faq";
 import { CTAStrip } from "@/components/marketing/cta-strip";
@@ -22,6 +23,7 @@ export default function HomePage() {
       <Features />
       <ClientShowcase />
       <Pricing />
+      <Comparison />
       <Testimonials />
       <FAQ />
       <CTAStrip />

@@ -1,23 +1,29 @@
-import { Quote } from "lucide-react";
+import { Quote, Star } from "lucide-react";
 
 const testimonials = [
   {
     quote:
       "Avant Inklee, je passais 2h par jour sur les messages Instagram et les rappels. Maintenant je tatoue, point. Mes no-shows sont passés de 4 par semaine à 0.",
     author: "Léa Marchand",
+    initials: "LM",
     role: "Tatoueuse, Atelier Noir — Lyon",
+    accent: "from-rose-500/30 to-amber-500/30",
   },
   {
     quote:
       "Le consentement médical signé en ligne, c'est ce qui me manquait. En cas de pépin je suis couverte, et les clients trouvent ça super pro.",
     author: "Thomas Dubois",
+    initials: "TD",
     role: "Tatoueur, Black Lotus — Bordeaux",
+    accent: "from-sky-500/30 to-emerald-500/30",
   },
   {
     quote:
       "Mes clients reçoivent les rappels de soins automatiquement. Résultat : moins de cicatrisations ratées, plus de retouches gratuites évitées.",
     author: "Anaïs Petit",
+    initials: "AP",
     role: "Tatoueuse, Ink Memory — Paris",
+    accent: "from-violet-500/30 to-pink-500/30",
   },
 ];
 
@@ -38,17 +44,34 @@ export function Testimonials() {
           {testimonials.map((t) => (
             <figure
               key={t.author}
-              className="relative rounded-xl border border-ink-800 bg-ink-900/40 p-6 sm:p-8 grain"
+              className="relative rounded-xl border border-ink-800 bg-ink-900/40 p-6 sm:p-8 grain card-hover hover:border-white/20"
             >
-              <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-foreground/30 mb-4 sm:mb-6" />
-              <blockquote className="text-sm sm:text-base text-ink-100 leading-relaxed mb-4 sm:mb-6">
+              <div className="flex items-center gap-1 mb-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-3.5 h-3.5 text-foreground fill-foreground"
+                  />
+                ))}
+              </div>
+              <Quote className="w-6 h-6 sm:w-7 sm:h-7 text-foreground/20 mb-4 sm:mb-5" />
+              <blockquote className="text-sm sm:text-base text-ink-100 leading-relaxed mb-5 sm:mb-6">
                 « {t.quote} »
               </blockquote>
-              <figcaption>
-                <div className="font-semibold text-foreground text-sm sm:text-base">
-                  {t.author}
+              <figcaption className="flex items-center gap-3">
+                <div
+                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${t.accent} border border-white/20 flex items-center justify-center shrink-0`}
+                >
+                  <span className="font-display text-sm font-bold text-foreground">
+                    {t.initials}
+                  </span>
                 </div>
-                <div className="text-xs sm:text-sm text-ink-400">{t.role}</div>
+                <div>
+                  <div className="font-semibold text-foreground text-sm">
+                    {t.author}
+                  </div>
+                  <div className="text-xs text-ink-400">{t.role}</div>
+                </div>
               </figcaption>
             </figure>
           ))}
