@@ -101,11 +101,21 @@ const config: Config = {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s ease-out forwards",
         "fade-in": "fade-in 0.8s ease-out forwards",
         shimmer: "shimmer 3s linear infinite",
+        marquee: "marquee 40s linear infinite",
+        float: "float 6s ease-in-out infinite",
       },
       backgroundImage: {
         "gold-gradient": "linear-gradient(135deg, #ffffff 0%, #d4d4d4 50%, #ffffff 100%)",

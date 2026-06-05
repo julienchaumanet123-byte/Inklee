@@ -5,19 +5,33 @@ import { DashboardPreview } from "./dashboard-preview";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-32 sm:pt-40 pb-20 sm:pb-28">
+    <section className="relative overflow-hidden pt-32 sm:pt-40 pb-16 sm:pb-20">
+      {/* Grid pattern background */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-30"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          maskImage:
+            "radial-gradient(ellipse at top center, black 0%, transparent 70%)",
+        }}
+      />
       <div className="absolute inset-0 bg-radial-fade pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] sm:w-[900px] sm:h-[900px] rounded-full bg-white/[0.03] blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] sm:w-[1100px] sm:h-[1100px] rounded-full bg-white/[0.03] blur-3xl pointer-events-none" />
 
       <div className="container relative z-10 max-w-4xl text-center px-4">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-medium text-foreground mb-6 sm:mb-8 animate-fade-in">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-medium text-foreground mb-6 sm:mb-8 animate-fade-in backdrop-blur-sm">
           <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           <span>Pensé par et pour les tatoueurs français</span>
         </div>
 
-        <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-balance mb-6 sm:mb-8 animate-fade-up leading-[1.05]">
-          Le logiciel <span className="text-gold-gradient">qui gère</span><br />
-          ton studio à ta place.
+        <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-[8rem] font-bold tracking-tight text-balance mb-6 sm:mb-8 animate-fade-up leading-[0.95]">
+          Le logiciel
+          <br />
+          <span className="text-gold-gradient italic">qui gère</span> ton studio
+          <br className="hidden sm:block" />
+          <span className="block sm:inline"> à ta place.</span>
         </h1>
 
         <p className="text-base sm:text-lg md:text-xl text-ink-300 max-w-2xl mx-auto mb-8 sm:mb-10 text-balance animate-fade-up" style={{ animationDelay: "0.1s" }}>
@@ -42,9 +56,14 @@ export function Hero() {
         </p>
       </div>
 
-      {/* Preview dashboard */}
+      {/* Preview dashboard with floating effect */}
       <div className="container relative z-10 mt-14 sm:mt-20 max-w-6xl px-2 sm:px-6">
-        <div className="animate-fade-up" style={{ animationDelay: "0.4s" }}>
+        <div
+          className="animate-fade-up relative"
+          style={{ animationDelay: "0.4s" }}
+        >
+          {/* Glow behind */}
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-white/[0.04] blur-3xl pointer-events-none -z-10" />
           <DashboardPreview />
         </div>
       </div>
