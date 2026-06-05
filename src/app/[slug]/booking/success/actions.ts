@@ -30,9 +30,12 @@ export async function autoLoginToPortal(appointmentId: string) {
     if (!client?.email) return;
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    // IMPORTANT: redirect_to doit pointer vers /auth/callback pour que le
+    // code OTP soit échangé en session. Sinon, l'utilisateur arrive sur
+    // /portal avec ?code=XXX mais reste connecté avec son ancienne session.
     const link = await generatePortalAccessLink(
       client.email,
-      `${appUrl}/portal`
+      `${appUrl}/auth/callback?next=/portal`
     );
 
     if (link) {
