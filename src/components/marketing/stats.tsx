@@ -1,4 +1,5 @@
 import { Clock, ShieldCheck, TrendingDown, Sparkles } from "lucide-react";
+import { Reveal } from "./reveal";
 
 const stats = [
   {
@@ -32,11 +33,11 @@ export function Stats() {
     <section className="relative py-20 sm:py-28 border-y border-ink-800/60 bg-ink-950/40">
       <div className="container max-w-6xl px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
-          {stats.map((s) => {
+          {stats.map((s, i) => {
             const Icon = s.icon;
             return (
-              <div key={s.label} className="group">
-                <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-ink-500 group-hover:text-foreground transition-colors mb-3 sm:mb-4" />
+              <Reveal key={s.label} delay={i * 80} className="group">
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-ink-500 group-hover:text-foreground transition-colors duration-300 mb-3 sm:mb-4" />
                 <div className="flex items-baseline gap-1 mb-2 sm:mb-3">
                   <div className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold text-gold-gradient leading-none">
                     {s.value}
@@ -48,7 +49,7 @@ export function Stats() {
                 <p className="text-xs sm:text-sm text-ink-400 leading-relaxed">
                   {s.label}
                 </p>
-              </div>
+              </Reveal>
             );
           })}
         </div>

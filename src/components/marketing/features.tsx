@@ -8,6 +8,7 @@ import {
   Smartphone,
   Heart,
 } from "lucide-react";
+import { Reveal } from "./reveal";
 
 const features = [
   {
@@ -80,14 +81,15 @@ export function Features() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          {features.map((feature) => {
+          {features.map((feature, i) => {
             const Icon = feature.icon;
             return (
-              <div
+              <Reveal
                 key={feature.title}
-                className="group relative rounded-xl border border-ink-800 bg-ink-900/40 p-5 sm:p-6 transition-all hover:border-white/20 hover:bg-ink-900/60"
+                delay={(i % 4) * 80}
+                className="group relative rounded-xl border border-ink-800 bg-ink-900/40 p-5 sm:p-6 card-hover hover:border-white/20 hover:bg-ink-900/60 glow-ring"
               >
-                <div className="mb-4 sm:mb-5 inline-flex w-10 h-10 sm:w-11 sm:h-11 items-center justify-center rounded-lg bg-white/5 text-foreground border border-white/20 group-hover:bg-white/10 transition-colors">
+                <div className="mb-4 sm:mb-5 inline-flex w-10 h-10 sm:w-11 sm:h-11 items-center justify-center rounded-lg bg-white/5 text-foreground border border-white/20 group-hover:bg-white/10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <h3 className="font-semibold text-base sm:text-lg mb-1.5 sm:mb-2 text-foreground">
@@ -96,7 +98,7 @@ export function Features() {
                 <p className="text-sm text-ink-300 leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
+              </Reveal>
             );
           })}
         </div>

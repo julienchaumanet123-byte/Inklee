@@ -6,9 +6,9 @@ import {
   Compass,
   MapPin,
   ArrowRight,
-  Send,
   Check,
 } from "lucide-react";
+import { Reveal } from "./reveal";
 
 /**
  * Section showcase : montre l'espace client (mobile) à côté du dashboard pro.
@@ -20,7 +20,7 @@ export function ClientShowcase() {
       <div className="container max-w-6xl px-4">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Copy */}
-          <div className="order-2 lg:order-1">
+          <Reveal className="order-2 lg:order-1">
             <div className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-foreground mb-3 sm:mb-4">
               Espace client
             </div>
@@ -39,26 +39,29 @@ export function ClientShowcase() {
                 "Upload de références (Instagram, Pinterest…)",
                 "Consultation du portfolio et des avis",
                 "Suivi des soins post-tatouage automatique",
-              ].map((feature) => (
-                <li
+              ].map((feature, i) => (
+                <Reveal
                   key={feature}
+                  as="li"
+                  delay={200 + i * 80}
                   className="flex items-start gap-3 text-sm sm:text-base text-ink-100"
                 >
                   <div className="w-5 h-5 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-foreground" />
                   </div>
                   {feature}
-                </li>
+                </Reveal>
               ))}
             </ul>
-          </div>
+          </Reveal>
 
           {/* iPhone mockup */}
-          <div className="order-1 lg:order-2 relative flex justify-center">
-            <PhoneMockup />
-            {/* Glow derrière */}
+          <Reveal delay={150} className="order-1 lg:order-2 relative flex justify-center">
+            <div className="float-slow">
+              <PhoneMockup />
+            </div>
             <div className="absolute inset-0 -z-10 bg-white/[0.03] blur-3xl rounded-full" />
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

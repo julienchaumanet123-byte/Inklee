@@ -64,7 +64,9 @@ export function Hero() {
         >
           {/* Glow behind */}
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-white/[0.04] blur-3xl pointer-events-none -z-10" />
-          <DashboardPreview />
+          <div className="float-slow">
+            <DashboardPreview />
+          </div>
         </div>
       </div>
     </section>

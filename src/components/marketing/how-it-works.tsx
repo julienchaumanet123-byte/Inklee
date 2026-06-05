@@ -4,6 +4,7 @@ import {
   Banknote,
   ArrowRight,
 } from "lucide-react";
+import { Reveal } from "./reveal";
 
 const steps = [
   {
@@ -52,21 +53,21 @@ export function HowItWorks() {
               const Icon = step.icon;
               const isLast = i === steps.length - 1;
               return (
-                <div
+                <Reveal
                   key={step.n}
-                  className="relative flex lg:flex-col items-start lg:items-center gap-4 sm:gap-5 lg:text-center"
+                  delay={i * 150}
+                  className="group relative flex lg:flex-col items-start lg:items-center gap-4 sm:gap-5 lg:text-center"
                 >
                   {/* Number + icon */}
                   <div className="flex lg:flex-col items-center gap-3 lg:gap-4 shrink-0">
                     <div className="relative">
-                      <div className="absolute -top-2 -left-2 font-display text-4xl sm:text-5xl font-bold text-ink-800 select-none">
+                      <div className="absolute -top-2 -left-2 font-display text-4xl sm:text-5xl font-bold text-ink-800 select-none group-hover:text-ink-700 transition-colors duration-500">
                         {step.n}
                       </div>
-                      <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl border border-white/20 bg-ink-900 flex items-center justify-center">
+                      <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-xl border border-white/20 bg-ink-900 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 group-hover:border-white/40">
                         <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
                       </div>
                     </div>
-                    {/* Connector arrow on mobile/tablet */}
                     {!isLast && (
                       <ArrowRight className="lg:hidden w-4 h-4 text-ink-600 mt-3" />
                     )}
@@ -80,7 +81,7 @@ export function HowItWorks() {
                       {step.description}
                     </p>
                   </div>
-                </div>
+                </Reveal>
               );
             })}
           </div>
