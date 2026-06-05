@@ -8,6 +8,7 @@ import {
   ImageIcon,
   CreditCard,
   Banknote,
+  Clock,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { SidebarLink } from "./sidebar-link";
 const NAV = [
   { href: "/dashboard", label: "Accueil", icon: LayoutDashboard },
   { href: "/dashboard/agenda", label: "Agenda", icon: Calendar },
+  { href: "/dashboard/availability", label: "Disponibilités", icon: Clock },
   { href: "/dashboard/clients", label: "Clients", icon: Users },
   { href: "/dashboard/portfolio", label: "Portfolio", icon: ImageIcon },
   { href: "/dashboard/payments", label: "Paiements", icon: Banknote },

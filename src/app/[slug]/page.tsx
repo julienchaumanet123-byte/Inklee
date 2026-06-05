@@ -3,7 +3,12 @@ import Link from "next/link";
 import { MapPin, Sparkles, ShieldCheck } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SlotPicker } from "./slot-picker";
-import { getNextDays, getSlotsForDate, isSlotBooked } from "@/lib/availability";
+import {
+  getNextDays,
+  getSlotsForDate,
+  isSlotBooked,
+  loadStudioAvailability,
+} from "@/lib/availability";
 import { formatPrice } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -29,9 +34,12 @@ export default async function StudioPublicPage({
 
   if (!studio) notFound();
 
-  // Charge les RDV non-annulés des 14 prochains jours pour filtrer les créneaux pris
+  // Charge la config availability du studio
+  const config = await loadStudioAvailability(studio.id);
+  const horizonDays = config?.bookingHorizonDays ?? 14;
+
   const horizon = new Date();
-  horizon.setDate(horizon.getDate() + 14);
+  horizon.setDate(horizon.getDate() + horizonDays);
 
   const [{ data: bookedRaw }, { data: portfolio }] = await Promise.all([
     supabase
@@ -51,12 +59,14 @@ export default async function StudioPublicPage({
 
   const booked = bookedRaw ?? [];
 
-  const availability = getNextDays(14).map((date) => {
-    const slots = getSlotsForDate(date)
-      .filter((slot) => !isSlotBooked(slot, booked))
-      .map((slot) => ({ iso: slot.iso, label: slot.label }));
-    return { dateIso: date.toISOString(), slots };
-  });
+  const availability = config
+    ? getNextDays(horizonDays).map((date) => {
+        const slots = getSlotsForDate(date, config)
+          .filter((slot) => !isSlotBooked(slot, booked))
+          .map((slot) => ({ iso: slot.iso, label: slot.label }));
+        return { dateIso: date.toISOString(), slots };
+      })
+    : [];
 
   return (
     <main className="min-h-screen bg-background">

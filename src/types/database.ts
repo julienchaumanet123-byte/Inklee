@@ -51,8 +51,31 @@ type StudioRow = {
   phone: string | null;
   address: string | null;
   opening_hours: Json;
+  appointment_duration_min: number;
+  booking_horizon_days: number;
+  booking_min_lead_hours: number;
   created_at: string;
   updated_at: string;
+};
+
+type AvailabilityRuleRow = {
+  id: string;
+  studio_id: string;
+  day_of_week: number;
+  is_open: boolean;
+  ranges: Json;
+  created_at: string;
+  updated_at: string;
+};
+
+type AvailabilityExceptionRow = {
+  id: string;
+  studio_id: string;
+  date: string;
+  is_closed: boolean;
+  ranges: Json | null;
+  reason: string | null;
+  created_at: string;
 };
 
 type ClientRow = {
@@ -236,6 +259,36 @@ export interface Database {
         Relationships: [
           {
             foreignKeyName: "portfolio_images_studio_id_fkey";
+            columns: ["studio_id"];
+            isOneToOne: false;
+            referencedRelation: "studios";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      availability_rules: {
+        Row: AvailabilityRuleRow;
+        Insert: Pick<AvailabilityRuleRow, "studio_id" | "day_of_week"> &
+          Partial<Omit<AvailabilityRuleRow, "studio_id" | "day_of_week">>;
+        Update: Partial<AvailabilityRuleRow>;
+        Relationships: [
+          {
+            foreignKeyName: "availability_rules_studio_id_fkey";
+            columns: ["studio_id"];
+            isOneToOne: false;
+            referencedRelation: "studios";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      availability_exceptions: {
+        Row: AvailabilityExceptionRow;
+        Insert: Pick<AvailabilityExceptionRow, "studio_id" | "date"> &
+          Partial<Omit<AvailabilityExceptionRow, "studio_id" | "date">>;
+        Update: Partial<AvailabilityExceptionRow>;
+        Relationships: [
+          {
+            foreignKeyName: "availability_exceptions_studio_id_fkey";
             columns: ["studio_id"];
             isOneToOne: false;
             referencedRelation: "studios";
