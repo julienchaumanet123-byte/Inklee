@@ -42,16 +42,18 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="py-32 relative">
-      <div className="container max-w-3xl">
-        <div className="text-center mb-16">
-          <div className="text-xs uppercase tracking-[0.2em] text-gold mb-4">FAQ</div>
-          <h2 className="font-display text-4xl md:text-6xl font-bold tracking-tight text-balance mb-6">
+    <section id="faq" className="py-20 sm:py-28 lg:py-32 relative">
+      <div className="container max-w-3xl px-4">
+        <div className="text-center mb-10 sm:mb-14 lg:mb-16">
+          <div className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-foreground mb-3 sm:mb-4">
+            FAQ
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-balance mb-4 sm:mb-6 leading-[1.05]">
             Les questions qu'on nous pose.
           </h2>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5 sm:space-y-3">
           {faqs.map((faq, i) => (
             <div
               key={i}
@@ -59,17 +61,21 @@ export function FAQ() {
             >
               <button
                 onClick={() => setOpen(open === i ? null : i)}
-                className="w-full flex items-center justify-between gap-4 p-6 text-left hover:bg-ink-900/60 transition-colors"
+                className="w-full flex items-center justify-between gap-3 sm:gap-4 p-4 sm:p-6 text-left hover:bg-ink-900/60 transition-colors"
               >
-                <span className="font-medium text-foreground">{faq.q}</span>
+                <span className="font-medium text-sm sm:text-base text-foreground">
+                  {faq.q}
+                </span>
                 {open === i ? (
-                  <Minus className="w-5 h-5 text-gold shrink-0" />
+                  <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-foreground shrink-0" />
                 ) : (
-                  <Plus className="w-5 h-5 text-ink-400 shrink-0" />
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-ink-400 shrink-0" />
                 )}
               </button>
               {open === i && (
-                <div className="px-6 pb-6 text-ink-300 leading-relaxed">{faq.a}</div>
+                <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-sm sm:text-base text-ink-300 leading-relaxed">
+                  {faq.a}
+                </div>
               )}
             </div>
           ))}

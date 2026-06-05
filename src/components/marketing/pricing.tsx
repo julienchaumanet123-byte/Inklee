@@ -62,56 +62,60 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="py-32 relative">
-      <div className="container max-w-6xl">
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <div className="text-xs uppercase tracking-[0.2em] text-gold mb-4">Tarifs</div>
-          <h2 className="font-display text-4xl md:text-6xl font-bold tracking-tight text-balance mb-6">
+    <section id="pricing" className="py-20 sm:py-28 lg:py-32 relative">
+      <div className="container max-w-6xl px-4">
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 lg:mb-20">
+          <div className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-foreground mb-3 sm:mb-4">
+            Tarifs
+          </div>
+          <h2 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-balance mb-4 sm:mb-6 leading-[1.05]">
             Un prix par <span className="text-gold-gradient">simplicité</span>.
           </h2>
-          <p className="text-lg text-ink-300 text-balance">
+          <p className="text-base sm:text-lg text-ink-300 text-balance">
             14 jours d'essai gratuit sur tous les plans. Sans carte bancaire,
             sans engagement.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border p-8 transition-all ${
+              className={`relative rounded-2xl border p-6 sm:p-7 lg:p-8 transition-all ${
                 plan.highlighted
-                  ? "border-gold/40 bg-gradient-to-b from-gold/[0.08] to-transparent gold-glow"
+                  ? "border-white/30 bg-gradient-to-b from-white/[0.06] to-transparent gold-glow"
                   : "border-ink-800 bg-ink-900/40"
               }`}
             >
               {plan.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <div className="rounded-full bg-gold px-3 py-1 text-xs font-semibold text-ink-950">
+                  <div className="rounded-full bg-white px-3 py-1 text-[11px] sm:text-xs font-semibold text-ink-950 whitespace-nowrap">
                     Le plus populaire
                   </div>
                 </div>
               )}
 
-              <div className="mb-6">
-                <h3 className="font-display text-2xl font-semibold mb-2">
+              <div className="mb-5 sm:mb-6">
+                <h3 className="font-display text-xl sm:text-2xl font-semibold mb-1.5 sm:mb-2">
                   {plan.name}
                 </h3>
                 <p className="text-sm text-ink-300">{plan.description}</p>
               </div>
 
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-8">
                 {plan.price !== null ? (
                   <div className="flex items-baseline gap-1">
-                    <span className="text-5xl font-bold">{plan.price}€</span>
-                    <span className="text-ink-300">/mois</span>
+                    <span className="text-4xl sm:text-5xl font-bold">{plan.price}€</span>
+                    <span className="text-sm sm:text-base text-ink-300">/mois</span>
                   </div>
                 ) : (
-                  <div className="text-3xl font-bold text-ink-200">Sur devis</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-ink-200">
+                    Sur devis
+                  </div>
                 )}
               </div>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-2.5 sm:space-y-3 mb-6 sm:mb-8">
                 {plan.features.map((f) => (
                   <li
                     key={f.label}
@@ -120,7 +124,7 @@ export function Pricing() {
                     }`}
                   >
                     {f.included ? (
-                      <Check className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-foreground mt-0.5 shrink-0" />
                     ) : (
                       <X className="w-4 h-4 text-ink-600 mt-0.5 shrink-0" />
                     )}
