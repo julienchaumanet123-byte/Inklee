@@ -5,7 +5,7 @@ import { DashboardPreview } from "./dashboard-preview";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-32 sm:pt-40 pb-16 sm:pb-20">
+    <section className="relative overflow-hidden pt-24 sm:pt-28 lg:pt-32 pb-10 sm:pb-14">
       {/* Grid pattern background */}
       <div
         className="absolute inset-0 pointer-events-none opacity-30"
@@ -26,15 +26,12 @@ export function Hero() {
           <span>Pensé par et pour les tatoueurs français</span>
         </div>
 
-        <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-[8rem] font-bold tracking-tight text-balance mb-6 sm:mb-8 animate-fade-up leading-[0.95]">
-          Le logiciel
-          <br />
-          <span className="text-gold-gradient italic">qui gère</span> ton studio
-          <br className="hidden sm:block" />
-          <span className="block sm:inline"> à ta place.</span>
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance mb-4 sm:mb-6 animate-fade-up leading-[1]">
+          Le logiciel <span className="text-gold-gradient italic">qui gère</span>{" "}
+          ton studio à ta place.
         </h1>
 
-        <p className="text-base sm:text-lg md:text-xl text-ink-300 max-w-2xl mx-auto mb-8 sm:mb-10 text-balance animate-fade-up" style={{ animationDelay: "0.1s" }}>
+        <p className="text-base sm:text-lg md:text-xl text-ink-300 max-w-2xl mx-auto mb-6 sm:mb-8 text-balance animate-fade-up" style={{ animationDelay: "0.1s" }}>
           Agenda, acomptes, fiches clients, consentement médical, rappels soins.
           Inklee fait disparaître la paperasse pour que tu te concentres sur ton art.
         </p>
@@ -51,13 +48,13 @@ export function Hero() {
           </Button>
         </div>
 
-        <p className="mt-5 sm:mt-6 text-xs sm:text-sm text-ink-400 animate-fade-up" style={{ animationDelay: "0.3s" }}>
+        <p className="mt-4 sm:mt-5 text-xs sm:text-sm text-ink-400 animate-fade-up" style={{ animationDelay: "0.3s" }}>
           14 jours gratuits · Sans carte bancaire · Sans engagement
         </p>
       </div>
 
       {/* Preview dashboard with floating effect */}
-      <div className="container relative z-10 mt-14 sm:mt-20 max-w-6xl px-2 sm:px-6">
+      <div className="container relative z-10 mt-10 sm:mt-14 max-w-6xl px-2 sm:px-6">
         <div
           className="animate-fade-up relative"
           style={{ animationDelay: "0.4s" }}

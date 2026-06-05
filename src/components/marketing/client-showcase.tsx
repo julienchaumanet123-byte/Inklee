@@ -16,7 +16,7 @@ import { Reveal } from "./reveal";
  */
 export function ClientShowcase() {
   return (
-    <section className="relative py-20 sm:py-28 lg:py-32 overflow-hidden">
+    <section className="relative py-12 sm:py-16 lg:py-20 overflow-hidden">
       <div className="container max-w-6xl px-4">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Copy */}
