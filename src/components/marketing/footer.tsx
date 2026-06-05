@@ -27,6 +27,9 @@ export function Footer() {
             <Link href="/portal/login" className="hover:text-foreground transition-colors">
               Espace client
             </Link>
+            <Link href="/legal/mentions-legales" className="hover:text-foreground transition-colors">
+              Mentions légales
+            </Link>
             <Link href="/legal/cgu" className="hover:text-foreground transition-colors">
               CGU
             </Link>
