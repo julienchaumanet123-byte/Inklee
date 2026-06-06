@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import {
   sendBookingConfirmedToClient,
   sendBookingNotificationToStudio,
+  sendSubscriptionPaymentFailed,
 } from "@/lib/email/send";
 
 export const runtime = "nodejs";
@@ -136,8 +137,10 @@ export async function POST(req: NextRequest) {
       // Détermine le plan_tier à partir du price_id
       const priceId = sub.items.data[0]?.price.id;
       let planTier: "starter" | "pro" | null = null;
-      if (priceId === process.env.STRIPE_PRICE_STARTER) planTier = "starter";
-      else if (priceId === process.env.STRIPE_PRICE_PRO) planTier = "pro";
+      if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER)
+        planTier = "starter";
+      else if (priceId === process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO)
+        planTier = "pro";
 
       const update: {
         plan_tier?: "starter" | "pro" | "studio";
@@ -172,7 +175,12 @@ export async function POST(req: NextRequest) {
     }
 
     case "invoice.payment_failed": {
-      // TODO : email au tatoueur pour mettre à jour son moyen de paiement
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerId =
+        typeof invoice.customer === "string"
+          ? invoice.customer
+          : invoice.customer?.id;
+      if (customerId) await sendSubscriptionPaymentFailed(customerId);
       break;
     }
 

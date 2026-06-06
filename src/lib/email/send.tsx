@@ -111,6 +111,52 @@ export async function sendBookingNotificationToStudio(appointmentId: string) {
   }
 }
 
+/**
+ * Prévient le tatoueur que le prélèvement de son abonnement Inklee a échoué,
+ * avec un lien vers son espace facturation pour mettre à jour sa carte.
+ */
+export async function sendSubscriptionPaymentFailed(stripeCustomerId: string) {
+  try {
+    const supabase = createAdminClient();
+    const { data: studio } = await supabase
+      .from("studios")
+      .select("name, owner_id")
+      .eq("stripe_customer_id", stripeCustomerId)
+      .maybeSingle();
+    if (!studio) return;
+
+    const { data: owner } = await supabase
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", studio.owner_id)
+      .maybeSingle();
+    if (!owner?.email) return;
+
+    const firstName = (owner.full_name ?? "").split(" ")[0] || "Bonjour";
+    const billingUrl = `${APP_URL}/dashboard/billing`;
+
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: owner.email,
+      subject: "Action requise : le paiement de ton abonnement Inklee a échoué",
+      html: `
+        <div style="font-family:sans-serif;max-width:520px;margin:0 auto;color:#111">
+          <h2>${firstName}, ton paiement n'a pas pu être prélevé</h2>
+          <p>Le dernier prélèvement de ton abonnement Inklee${
+            studio.name ? ` (${studio.name})` : ""
+          } a échoué. Pour éviter toute interruption de ton compte, mets à jour ton moyen de paiement dès que possible.</p>
+          <p style="margin:28px 0">
+            <a href="${billingUrl}" style="background:#111;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none">Mettre à jour ma carte</a>
+          </p>
+          <p style="color:#666;font-size:13px">Stripe retentera automatiquement le prélèvement dans les prochains jours. Si tu mets ta carte à jour, rien d'autre n'est nécessaire.</p>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error("[email] sendSubscriptionPaymentFailed failed", err);
+  }
+}
+
 export async function sendBookingCancelledToClient(appointmentId: string) {
   try {
     const bundle = await fetchAppointmentBundle(appointmentId);
