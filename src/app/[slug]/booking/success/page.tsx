@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { CheckCircle2, Mail, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatDateTime, formatPrice } from "@/lib/utils";
-import { autoLoginToPortal } from "./actions";
+import { autoLoginToPortal, finalizeBookingIfPaid } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,11 @@ export default async function BookingSuccessPage({
   // On utilise appointment_id (présent dans le success_url) plutôt que
   // session_id Stripe car la session est sur le compte Connect du studio.
   const appointmentId = searchParams.appointment_id ?? null;
+
+  // Filet de sécurité : confirme le RDV si le webhook n'a pas encore tourné.
+  const { paid } = appointmentId
+    ? await finalizeBookingIfPaid(appointmentId, searchParams.session_id ?? null)
+    : { paid: false };
 
   if (appointmentId) {
     const supabase = createAdminClient();
@@ -56,6 +62,9 @@ export default async function BookingSuccessPage({
     if (appointmentId) {
       await autoLoginToPortal(appointmentId);
     }
+    // autoLoginToPortal redirige en cas de succès ; si on arrive ici, le
+    // magic link n'a pas pu être généré → fallback vers la connexion portail.
+    redirect("/portal/login");
   }
 
   return (
@@ -75,13 +84,35 @@ export default async function BookingSuccessPage({
 
           {appointmentDate && studioName && (
             <p className="text-lg text-ink-200 mb-1 text-balance">
-              Ton rendez-vous chez <strong className="text-foreground">{studioName}</strong> est confirmé pour le <span className="text-foreground">{formatDateTime(appointmentDate)}</span>.
+              {paid ? (
+                <>
+                  Ton rendez-vous chez{" "}
+                  <strong className="text-foreground">{studioName}</strong> est
+                  confirmé pour le{" "}
+                  <span className="text-foreground">
+                    {formatDateTime(appointmentDate)}
+                  </span>
+                  .
+                </>
+              ) : (
+                <>
+                  Ta réservation chez{" "}
+                  <strong className="text-foreground">{studioName}</strong> pour
+                  le{" "}
+                  <span className="text-foreground">
+                    {formatDateTime(appointmentDate)}
+                  </span>{" "}
+                  est en cours de validation.
+                </>
+              )}
             </p>
           )}
 
           {amount !== null && (
             <p className="text-sm text-ink-400 mt-3">
-              Acompte de {formatPrice(amount)} reçu ✓
+              {paid
+                ? `Acompte de ${formatPrice(amount)} reçu ✓`
+                : `Confirmation de l'acompte de ${formatPrice(amount)} en cours…`}
             </p>
           )}
         </div>

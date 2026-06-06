@@ -82,7 +82,10 @@ export async function POST(req: NextRequest) {
         const appointmentId = session.metadata?.appointment_id;
         if (!appointmentId) break;
 
-        await supabase
+        // Update conditionnel : idempotent avec le filet de sécurité de la
+        // page de succès. Seul le chemin qui bascule réellement deposit_paid
+        // false→true envoie les emails (évite les doublons).
+        const { data: updated } = await supabase
           .from("appointments")
           .update({
             deposit_paid: true,
@@ -92,12 +95,16 @@ export async function POST(req: NextRequest) {
                 ? session.payment_intent
                 : session.payment_intent?.id ?? session.id,
           })
-          .eq("id", appointmentId);
+          .eq("id", appointmentId)
+          .eq("deposit_paid", false)
+          .select("id");
 
-        await Promise.allSettled([
-          sendBookingConfirmedToClient(appointmentId),
-          sendBookingNotificationToStudio(appointmentId),
-        ]);
+        if (updated && updated.length > 0) {
+          await Promise.allSettled([
+            sendBookingConfirmedToClient(appointmentId),
+            sendBookingNotificationToStudio(appointmentId),
+          ]);
+        }
       }
       break;
     }
