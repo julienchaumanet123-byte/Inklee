@@ -165,8 +165,8 @@ export default async function StudioPublicPage({
                 <ShieldCheck className="w-5 h-5 text-gold shrink-0 mt-0.5" />
                 <p>
                   Paiement sécurisé via Stripe directement chez {studio.name}.
-                  Acompte remboursable en cas d'annulation 72h avant le
-                  rendez-vous.
+                  Pour toute annulation ou modification, contacte directement le
+                  studio.
                 </p>
               </div>
             </>

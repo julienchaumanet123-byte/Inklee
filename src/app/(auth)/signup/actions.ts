@@ -36,7 +36,7 @@ export async function signup(
   }
 
   const supabase = createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
@@ -50,5 +50,13 @@ export async function signup(
   }
 
   revalidatePath("/", "layout");
+
+  // Si la confirmation email est activée côté Supabase, signUp ne crée pas de
+  // session : on envoie l'utilisateur sur une page "vérifie tes mails" au lieu
+  // de le rediriger vers /onboarding (où le middleware le renverrait au login).
+  if (!data.session) {
+    redirect("/check-email");
+  }
+
   redirect("/onboarding");
 }

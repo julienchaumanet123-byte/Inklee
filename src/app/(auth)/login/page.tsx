@@ -1,6 +1,8 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,8 +20,13 @@ function SubmitButton() {
   );
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const [state, formAction] = useFormState(login, initialState);
+  const searchParams = useSearchParams();
+  const callbackError =
+    searchParams.get("error") === "auth_callback_failed"
+      ? "Le lien d'authentification a expiré ou est invalide. Connecte-toi à nouveau."
+      : null;
 
   return (
     <div className="w-full max-w-md">
@@ -27,6 +34,12 @@ export default function LoginPage() {
         <h1 className="font-display text-4xl font-bold mb-2">Bon retour.</h1>
         <p className="text-ink-300">Connecte-toi à ton studio.</p>
       </div>
+
+      {callbackError && (
+        <div className="mb-6 rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {callbackError}
+        </div>
+      )}
 
       <form action={formAction} className="space-y-5">
         <div className="space-y-2">
@@ -83,5 +96,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
