@@ -79,10 +79,34 @@ export default async function StudioPublicPage({
         </div>
       </header>
 
+      {/* Bannière de couverture */}
+      {studio.cover_url && (
+        <div className="relative h-44 w-full overflow-hidden md:h-60">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={studio.cover_url}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/20 to-background" />
+        </div>
+      )}
+
       {/* Hero studio */}
-      <section className="relative py-16">
+      <section
+        className={`relative ${studio.cover_url ? "-mt-14 pb-16" : "py-16"}`}
+      >
         <div className="absolute inset-0 bg-radial-fade pointer-events-none" />
         <div className="container relative max-w-4xl text-center">
+          {studio.logo_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={studio.logo_url}
+              alt={studio.name}
+              className="mx-auto mb-6 h-28 w-28 rounded-full border border-ink-700 object-cover ring-4 ring-background"
+            />
+          )}
+
           <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/5 px-3 py-1 text-xs text-gold mb-6">
             <Sparkles className="w-3 h-3" />
             {SPECIALTY_LABEL[studio.specialty] ?? "Studio"}

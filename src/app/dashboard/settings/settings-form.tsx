@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateStudio, type SettingsState } from "./actions";
+import { StudioImages } from "./studio-images";
 import type { Database } from "@/types/database";
 
 type Studio = Database["public"]["Tables"]["studios"]["Row"];
@@ -76,6 +77,12 @@ export function SettingsForm({ studio }: { studio: Studio }) {
           </p>
         </CardContent>
       </Card>
+
+      {/* Photos (formulaires d'upload indépendants, hors du form principal) */}
+      <StudioImages
+        avatarUrl={studio.logo_url}
+        coverUrl={studio.cover_url}
+      />
 
       {/* Form */}
       <form action={formAction} className="space-y-6">
