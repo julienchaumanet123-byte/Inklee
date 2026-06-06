@@ -16,7 +16,7 @@ const PLAN_ORDER: PlanTier[] = ["starter", "pro", "studio"];
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: { subscribed?: string };
+  searchParams: { subscribed?: string; expired?: string };
 }) {
   const supabase = createClient();
   const {
@@ -36,6 +36,14 @@ export default async function BillingPage({
 
   return (
     <div className="p-6 md:p-10 max-w-5xl">
+      {searchParams.expired && !hasSubscription && (
+        <div className="mb-8 rounded-lg border border-destructive/30 bg-destructive/10 px-5 py-4 text-sm text-destructive">
+          <strong>Ton essai gratuit est terminé.</strong> Choisis un plan
+          ci-dessous pour réactiver l&apos;accès à ton studio (agenda,
+          réservations, clients…).
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
         <div>
           <h1 className="font-display text-4xl font-bold mb-1">Abonnement</h1>

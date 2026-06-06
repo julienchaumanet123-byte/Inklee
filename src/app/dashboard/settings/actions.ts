@@ -10,6 +10,7 @@ const settingsSchema = z.object({
   bio: z.string().max(500, "Max 500 caractères").optional(),
   specialty: z.enum(["tattoo", "piercing", "both"]),
   depositAmount: z.coerce.number().min(0, "Doit être positif").max(10000),
+  depositRequired: z.preprocess((v) => v === "on", z.boolean()),
   address: z.string().max(200).optional(),
   phone: z.string().max(30).optional(),
   instagramHandle: z.string().max(50).optional(),
@@ -35,6 +36,7 @@ export async function updateStudio(
     bio: formData.get("bio"),
     specialty: formData.get("specialty"),
     depositAmount: formData.get("depositAmount"),
+    depositRequired: formData.get("depositRequired"),
     address: formData.get("address"),
     phone: formData.get("phone"),
     instagramHandle: formData.get("instagramHandle"),
@@ -64,6 +66,7 @@ export async function updateStudio(
       bio: parsed.data.bio || null,
       specialty: parsed.data.specialty,
       deposit_amount: parsed.data.depositAmount,
+      deposit_required: parsed.data.depositRequired,
       address: parsed.data.address || null,
       phone: parsed.data.phone || null,
       instagram_handle:

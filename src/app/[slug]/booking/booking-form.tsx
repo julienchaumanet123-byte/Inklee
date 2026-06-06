@@ -9,17 +9,31 @@ import { createBooking, type BookingState } from "./actions";
 
 const initialState: BookingState = {};
 
-function SubmitButton() {
+function SubmitButton({ depositRequired }: { depositRequired: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" size="xl" className="w-full" disabled={pending}>
-      <Lock className="w-4 h-4" />
-      {pending ? "Redirection vers Stripe…" : "Payer l'acompte et confirmer"}
+      {depositRequired && <Lock className="w-4 h-4" />}
+      {depositRequired
+        ? pending
+          ? "Redirection vers Stripe…"
+          : "Payer l'acompte et confirmer"
+        : pending
+          ? "Confirmation…"
+          : "Confirmer ma réservation"}
     </Button>
   );
 }
 
-export function BookingForm({ slug, slotIso }: { slug: string; slotIso: string }) {
+export function BookingForm({
+  slug,
+  slotIso,
+  depositRequired,
+}: {
+  slug: string;
+  slotIso: string;
+  depositRequired: boolean;
+}) {
   const [state, formAction] = useFormState(createBooking, initialState);
 
   return (
@@ -117,10 +131,12 @@ export function BookingForm({ slug, slotIso }: { slug: string; slotIso: string }
         </div>
       )}
 
-      <SubmitButton />
+      <SubmitButton depositRequired={depositRequired} />
 
       <p className="text-xs text-center text-ink-400">
-        Paiement sécurisé par Stripe. Tes infos ne sont jamais stockées par Inklee.
+        {depositRequired
+          ? "Paiement sécurisé par Stripe. Tes infos ne sont jamais stockées par Inklee."
+          : "Ta réservation est confirmée immédiatement. Tes infos ne sont jamais stockées par Inklee."}
       </p>
     </form>
   );

@@ -7,7 +7,7 @@ export type BookingConfirmedClientProps = {
   studioName: string;
   studioCity?: string | null;
   appointmentDateLabel: string; // déjà formaté FR
-  depositAmountLabel: string;   // ex: "50,00 €"
+  depositAmountLabel?: string | null; // ex: "50,00 €" ; null = pas d'acompte
   projectDescription?: string | null;
   portalUrl: string;
 };
@@ -30,8 +30,11 @@ export function BookingConfirmedClientEmail({
       </Text>
 
       <Text style={emailStyles.p}>
-        Bonjour {clientFirstName}, on a bien reçu ton acompte. On t'attend chez{" "}
-        <strong>{studioName}</strong>
+        Bonjour {clientFirstName},{" "}
+        {depositAmountLabel
+          ? "on a bien reçu ton acompte."
+          : "ta réservation est confirmée."}{" "}
+        On t'attend chez <strong>{studioName}</strong>
         {studioCity ? ` à ${studioCity}` : ""}.
       </Text>
 
@@ -39,8 +42,12 @@ export function BookingConfirmedClientEmail({
         <Text style={emailStyles.boxLabel}>Date</Text>
         <Text style={emailStyles.boxValue}>{appointmentDateLabel}</Text>
 
-        <Text style={emailStyles.boxLabel}>Acompte reçu</Text>
-        <Text style={emailStyles.boxValue}>{depositAmountLabel}</Text>
+        {depositAmountLabel && (
+          <>
+            <Text style={emailStyles.boxLabel}>Acompte reçu</Text>
+            <Text style={emailStyles.boxValue}>{depositAmountLabel}</Text>
+          </>
+        )}
 
         {projectDescription && (
           <>
@@ -62,9 +69,8 @@ export function BookingConfirmedClientEmail({
       </Link>
 
       <Text style={{ ...emailStyles.small, marginTop: "24px" }}>
-        On t'enverra aussi un SMS de rappel la veille du rendez-vous.
-        Conditions d'annulation : ton acompte est remboursable si tu annules
-        au moins 72h avant.
+        Pour toute question, annulation ou modification, contacte directement
+        le studio depuis ton espace Inklee.
       </Text>
     </EmailLayout>
   );

@@ -26,7 +26,7 @@ export default async function BookingPage({
   const supabase = createAdminClient();
   const { data: studio } = await supabase
     .from("studios")
-    .select("name, slug, city, deposit_amount, specialty")
+    .select("name, slug, city, deposit_amount, deposit_required, specialty")
     .eq("slug", params.slug)
     .maybeSingle();
 
@@ -76,13 +76,19 @@ export default async function BookingPage({
             <div>
               <div className="text-xs uppercase tracking-wider text-gold mb-1">Acompte</div>
               <div className="font-medium text-foreground text-lg">
-                {formatPrice(studio.deposit_amount)}
+                {studio.deposit_required
+                  ? formatPrice(studio.deposit_amount)
+                  : "Aucun"}
               </div>
             </div>
           </div>
         </div>
 
-        <BookingForm slug={studio.slug} slotIso={slotDate.toISOString()} />
+        <BookingForm
+          slug={studio.slug}
+          slotIso={slotDate.toISOString()}
+          depositRequired={studio.deposit_required}
+        />
       </div>
     </main>
   );

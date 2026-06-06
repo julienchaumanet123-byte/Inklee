@@ -19,26 +19,33 @@ export default async function BookingSuccessPage({
   let amount: number | null = null;
   let clientFirstName: string | null = null;
   let studioName: string | null = null;
+  let confirmed = false;
+  let depositPaid = false;
 
   // On utilise appointment_id (présent dans le success_url) plutôt que
   // session_id Stripe car la session est sur le compte Connect du studio.
   const appointmentId = searchParams.appointment_id ?? null;
 
-  // Filet de sécurité : confirme le RDV si le webhook n'a pas encore tourné.
-  const { paid } = appointmentId
-    ? await finalizeBookingIfPaid(appointmentId, searchParams.session_id ?? null)
-    : { paid: false };
+  // Filet de sécurité : confirme le RDV (acompte) si le webhook n'a pas encore
+  // tourné. Sans acompte, le RDV est déjà confirmé dès la création.
+  if (appointmentId) {
+    await finalizeBookingIfPaid(appointmentId, searchParams.session_id ?? null);
+  }
 
   if (appointmentId) {
     const supabase = createAdminClient();
     const { data: appt } = await supabase
       .from("appointments")
-      .select("starts_at, deposit_amount, client_id, studio_id")
+      .select(
+        "starts_at, deposit_amount, deposit_paid, status, client_id, studio_id"
+      )
       .eq("id", appointmentId)
       .maybeSingle();
     if (appt) {
       appointmentDate = new Date(appt.starts_at);
       amount = appt.deposit_amount;
+      confirmed = appt.status === "confirmed";
+      depositPaid = appt.deposit_paid;
 
       const [{ data: client }, { data: studio }] = await Promise.all([
         supabase
@@ -84,7 +91,7 @@ export default async function BookingSuccessPage({
 
           {appointmentDate && studioName && (
             <p className="text-lg text-ink-200 mb-1 text-balance">
-              {paid ? (
+              {confirmed ? (
                 <>
                   Ton rendez-vous chez{" "}
                   <strong className="text-foreground">{studioName}</strong> est
@@ -108,13 +115,15 @@ export default async function BookingSuccessPage({
             </p>
           )}
 
-          {amount !== null && (
+          {depositPaid ? (
             <p className="text-sm text-ink-400 mt-3">
-              {paid
-                ? `Acompte de ${formatPrice(amount)} reçu ✓`
-                : `Confirmation de l'acompte de ${formatPrice(amount)} en cours…`}
+              Acompte de {formatPrice(amount ?? 0)} reçu ✓
             </p>
-          )}
+          ) : !confirmed && amount ? (
+            <p className="text-sm text-ink-400 mt-3">
+              Confirmation de l'acompte de {formatPrice(amount)} en cours…
+            </p>
+          ) : null}
         </div>
 
         {/* CTA principal : portail */}

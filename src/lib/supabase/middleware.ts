@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/types/database";
+import { getStudioAccess } from "@/lib/access";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -57,6 +58,26 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/portal";
     return NextResponse.redirect(url);
+  }
+
+  // Paywall : essai terminé sans abonnement → on bloque le dashboard (sauf la
+  // page d'abonnement, pour permettre de souscrire).
+  if (
+    user &&
+    pathname.startsWith("/dashboard") &&
+    pathname !== "/dashboard/billing"
+  ) {
+    const { data: studio } = await supabase
+      .from("studios")
+      .select("trial_ends_at, plan_tier, stripe_subscription_id")
+      .eq("owner_id", user.id)
+      .maybeSingle();
+    if (studio && getStudioAccess(studio).locked) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard/billing";
+      url.searchParams.set("expired", "1");
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;

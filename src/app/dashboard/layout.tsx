@@ -14,6 +14,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getStudioAccess } from "@/lib/access";
 import { Button } from "@/components/ui/button";
 import { SidebarLink } from "./sidebar-link";
 
@@ -41,12 +42,13 @@ export default async function DashboardLayout({
 
   const { data: studio } = await supabase
     .from("studios")
-    .select("name, slug, plan_tier")
+    .select("name, slug, plan_tier, trial_ends_at, stripe_subscription_id")
     .eq("owner_id", user.id)
     .maybeSingle();
 
   if (!studio) redirect("/onboarding");
 
+  const access = getStudioAccess(studio);
   const planLabel = { starter: "Starter", pro: "Pro", studio: "Studio" }[
     studio.plan_tier
   ];
@@ -161,7 +163,32 @@ export default async function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="flex-1 min-w-0">
+          {!access.subscribed && (
+            <div
+              className={`flex items-center justify-between gap-3 border-b px-4 md:px-8 py-3 text-sm ${
+                access.locked
+                  ? "border-destructive/30 bg-destructive/10 text-destructive"
+                  : "border-gold/20 bg-gold/5 text-ink-200"
+              }`}
+            >
+              <span>
+                {access.locked
+                  ? "Ton essai gratuit est terminé. Abonne-toi pour réactiver ton studio."
+                  : `Essai gratuit — ${access.trialDaysLeft} jour${
+                      access.trialDaysLeft > 1 ? "s" : ""
+                    } restant${access.trialDaysLeft > 1 ? "s" : ""}.`}
+              </span>
+              <Link
+                href="/dashboard/billing"
+                className="shrink-0 font-medium underline hover:no-underline"
+              >
+                {access.locked ? "Choisir un plan" : "Gérer mon abonnement"}
+              </Link>
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

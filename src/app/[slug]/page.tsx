@@ -68,6 +68,12 @@ export default async function StudioPublicPage({
       })
     : [];
 
+  // Réservable si pas d'acompte requis, ou si l'acompte est requis et Stripe configuré.
+  const canBook = studio.deposit_required
+    ? studio.stripe_charges_enabled
+    : true;
+  const hasSlots = availability.some((d) => d.slots.length > 0);
+
   return (
     <main className="min-h-screen bg-background">
       {/* Top bar */}
@@ -158,7 +164,7 @@ export default async function StudioPublicPage({
       {/* Booking */}
       <section className="container max-w-4xl pb-32">
         <div className="rounded-2xl border border-ink-800 bg-ink-900/40 p-6 md:p-10">
-          {!studio.stripe_charges_enabled ? (
+          {!canBook ? (
             <div className="text-center py-10">
               <h2 className="font-display text-3xl font-bold mb-3">
                 Réservation bientôt disponible
@@ -175,20 +181,37 @@ export default async function StudioPublicPage({
                   Réserver un créneau
                 </h2>
                 <p className="text-ink-300">
-                  Choisis ta date et ton créneau. L'acompte de{" "}
-                  <span className="text-gold font-medium">
-                    {formatPrice(studio.deposit_amount)}
-                  </span>{" "}
-                  est payé en ligne pour bloquer le rendez-vous.
+                  {studio.deposit_required ? (
+                    <>
+                      Choisis ta date et ton créneau. L'acompte de{" "}
+                      <span className="text-gold font-medium">
+                        {formatPrice(studio.deposit_amount)}
+                      </span>{" "}
+                      est payé en ligne pour bloquer le rendez-vous.
+                    </>
+                  ) : (
+                    <>
+                      Choisis ta date et ton créneau. Aucun acompte demandé — ta
+                      réservation est confirmée immédiatement.
+                    </>
+                  )}
                 </p>
               </div>
 
-              <SlotPicker slug={studio.slug} availability={availability} />
+              {hasSlots ? (
+                <SlotPicker slug={studio.slug} availability={availability} />
+              ) : (
+                <div className="rounded-lg border border-ink-800 bg-ink-900/40 p-8 text-center text-ink-300">
+                  Aucun créneau ouvert pour le moment. Reviens bientôt ou
+                  contacte directement le studio.
+                </div>
+              )}
 
               <div className="mt-10 pt-6 border-t border-ink-800/50 flex items-start gap-3 text-sm text-ink-400">
                 <ShieldCheck className="w-5 h-5 text-gold shrink-0 mt-0.5" />
                 <p>
-                  Paiement sécurisé via Stripe directement chez {studio.name}.
+                  {studio.deposit_required &&
+                    `Paiement sécurisé via Stripe directement chez ${studio.name}. `}
                   Pour toute annulation ou modification, contacte directement le
                   studio.
                 </p>

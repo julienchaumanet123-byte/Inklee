@@ -5,6 +5,10 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 import { ensureClientAuthUser } from "@/lib/email/portal-link";
+import {
+  sendBookingConfirmedToClient,
+  sendBookingNotificationToStudio,
+} from "@/lib/email/send";
 
 const bookingSchema = z.object({
   slug: z.string().min(1),
@@ -50,7 +54,9 @@ export async function createBooking(
   // 1. Studio
   const { data: studio, error: studioErr } = await supabase
     .from("studios")
-    .select("id, name, deposit_amount, slug, stripe_account_id, stripe_charges_enabled")
+    .select(
+      "id, name, deposit_amount, deposit_required, slug, stripe_account_id, stripe_charges_enabled"
+    )
     .eq("slug", data.slug)
     .maybeSingle();
 
@@ -58,8 +64,12 @@ export async function createBooking(
     return { error: "Studio introuvable." };
   }
 
-  // Gate : Stripe Connect doit être configuré pour accepter les paiements
-  if (!studio.stripe_account_id || !studio.stripe_charges_enabled) {
+  // Gate paiement : uniquement si le studio demande un acompte. Sinon, on
+  // laisse réserver même sans Stripe Connect configuré.
+  if (
+    studio.deposit_required &&
+    (!studio.stripe_account_id || !studio.stripe_charges_enabled)
+  ) {
     return {
       error:
         "Le studio n'a pas encore configuré son moyen de paiement. Réessaye dans quelques jours.",
@@ -110,9 +120,23 @@ export async function createBooking(
     return { error: "Impossible de créer la fiche client." };
   }
 
-  // 4. Create appointment (pending)
+  // 4. Create appointment
   const startsAt = new Date(data.slotIso);
   const endsAt = new Date(startsAt.getTime() + 60 * 60 * 1000);
+
+  // Anti double-booking : vérifie que le créneau n'a pas été pris entre-temps.
+  const { data: clash } = await supabase
+    .from("appointments")
+    .select("id")
+    .eq("studio_id", studio.id)
+    .eq("starts_at", startsAt.toISOString())
+    .in("status", ["pending", "confirmed"])
+    .maybeSingle();
+  if (clash) {
+    return { error: "Ce créneau vient d'être réservé. Choisis-en un autre." };
+  }
+
+  const depositRequired = studio.deposit_required;
 
   const { data: appointment, error: apptErr } = await supabase
     .from("appointments")
@@ -123,20 +147,46 @@ export async function createBooking(
       ends_at: endsAt.toISOString(),
       project_description: data.projectDescription,
       reference_image_url: referenceUrl,
-      deposit_amount: studio.deposit_amount,
-      status: "pending",
+      deposit_amount: depositRequired ? studio.deposit_amount : 0,
+      // Sans acompte, le RDV est confirmé immédiatement ; sinon il attend le paiement.
+      status: depositRequired ? "pending" : "confirmed",
     })
     .select("id")
     .single();
 
   if (apptErr || !appointment) {
+    // 23505 = violation de la contrainte d'unicité anti double-booking (course).
+    if (apptErr?.code === "23505") {
+      return { error: "Ce créneau vient d'être réservé. Choisis-en un autre." };
+    }
     return { error: "Impossible de créer le rendez-vous." };
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
+  // 4bis. Pas d'acompte requis → RDV confirmé direct, on notifie tout de suite.
+  if (!depositRequired) {
+    await Promise.allSettled([
+      sendBookingConfirmedToClient(appointment.id),
+      sendBookingNotificationToStudio(appointment.id),
+    ]);
+    redirect(
+      `${appUrl}/${studio.slug}/booking/success?appointment_id=${appointment.id}`
+    );
+  }
+
+  // À partir d'ici, un acompte est requis : le gate plus haut a garanti la
+  // présence du compte Stripe (re-narrowing pour TypeScript).
+  if (!studio.stripe_account_id) {
+    return {
+      error:
+        "Le studio n'a pas encore configuré son moyen de paiement. Réessaye dans quelques jours.",
+    };
   }
 
   // 5. Stripe Checkout session — DIRECT CHARGE sur le compte du studio
   // Le client paie directement le studio (sans passer par Inklee).
   // L'argent va sur le compte Stripe Connect du tatoueur.
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",

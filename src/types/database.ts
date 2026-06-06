@@ -40,6 +40,8 @@ type StudioRow = {
   logo_url: string | null;
   cover_url: string | null;
   deposit_amount: number;
+  deposit_required: boolean;
+  trial_ends_at: string;
   plan_tier: PlanTier;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
@@ -113,6 +115,7 @@ type AppointmentRow = {
   deposit_paid: boolean;
   deposit_amount: number;
   stripe_payment_intent_id: string | null;
+  reminder_sent_at: string | null;
   parent_project_id: string | null;
   session_index: number;
   created_at: string;
