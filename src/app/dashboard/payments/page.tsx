@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { startStripeConnect, openStripeExpressDashboard } from "./actions";
+import { DepositToggle } from "./deposit-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function PaymentsPage() {
   const { data: studio } = await supabase
     .from("studios")
     .select(
-      "stripe_account_id, stripe_charges_enabled, stripe_details_submitted"
+      "stripe_account_id, stripe_charges_enabled, stripe_details_submitted, deposit_required"
     )
     .eq("owner_id", user.id)
     .maybeSingle();
@@ -55,9 +56,10 @@ export default async function PaymentsPage() {
                 Connecte ton compte bancaire
               </h2>
               <p className="text-ink-300 mb-6 max-w-md mx-auto">
-                Sans cette étape, tes clients ne peuvent pas réserver — la page
-                publique de réservation est désactivée tant que ton compte
-                Stripe n'est pas configuré.
+                Nécessaire seulement si tu demandes un acompte : la réservation
+                est alors désactivée tant que Stripe n'est pas configuré. Sinon,
+                désactive l'acompte ci-dessous pour accepter des réservations
+                sans paiement.
               </p>
               <form action={startStripeConnect}>
                 <Button type="submit" size="lg">
@@ -115,6 +117,8 @@ export default async function PaymentsPage() {
           )}
         </CardContent>
       </Card>
+
+      <DepositToggle depositRequired={studio.deposit_required} />
 
       {/* Encart trust */}
       <div className="flex items-start gap-3 text-sm text-ink-400">

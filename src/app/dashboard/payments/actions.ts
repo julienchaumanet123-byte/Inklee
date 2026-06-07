@@ -123,3 +123,34 @@ export async function syncStripeAccountStatus() {
   revalidatePath("/dashboard/payments");
   revalidatePath("/dashboard");
 }
+
+/**
+ * Active/désactive l'acompte obligatoire pour réserver. Auto-sauvegardé depuis
+ * le toggle de l'onglet Paiements. Revalide aussi la page publique du studio
+ * pour que le changement soit visible immédiatement côté client.
+ */
+export async function updateDepositRequired(formData: FormData) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const required = formData.get("depositRequired") === "on";
+
+  const { data: studio } = await supabase
+    .from("studios")
+    .select("slug")
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  await supabase
+    .from("studios")
+    .update({ deposit_required: required })
+    .eq("owner_id", user.id);
+
+  revalidatePath("/dashboard/payments");
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
+  if (studio?.slug) revalidatePath(`/${studio.slug}`);
+}

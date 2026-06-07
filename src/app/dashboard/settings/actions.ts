@@ -58,6 +58,12 @@ export async function updateStudio(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Non authentifié." };
 
+  const { data: current } = await supabase
+    .from("studios")
+    .select("slug")
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
   const { error } = await supabase
     .from("studios")
     .update({
@@ -79,5 +85,7 @@ export async function updateStudio(
 
   revalidatePath("/dashboard/settings");
   revalidatePath("/dashboard");
+  // Revalide la page publique pour refléter les changements côté client.
+  if (current?.slug) revalidatePath(`/${current.slug}`);
   return { success: true };
 }
