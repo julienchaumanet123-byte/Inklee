@@ -47,7 +47,7 @@ export async function GET(
       : studio.city ?? undefined,
     startsAt: new Date(appt.starts_at),
     endsAt: new Date(appt.ends_at),
-    url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://inkleeapp.vercel.app"}/portal/appointments/${appt.id}`,
+    url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://inklee.fr"}/portal/appointments/${appt.id}`,
   });
 
   return new Response(ics, {
