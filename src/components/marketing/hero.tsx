@@ -26,9 +26,9 @@ export function Hero() {
           <span>Pensé par et pour les tatoueurs français</span>
         </div>
 
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance mb-4 sm:mb-6 animate-fade-up leading-[1]">
-          Le logiciel <span className="text-gold-gradient italic">qui gère</span>{" "}
-          ton studio à ta place.
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-balance mb-4 sm:mb-6 animate-fade-up leading-[0.95]">
+          Le logiciel <span className="text-gold-gradient">qui gère</span> ton
+          studio à ta place.
         </h1>
 
         <p className="text-base sm:text-lg md:text-xl text-ink-300 max-w-2xl mx-auto mb-6 sm:mb-8 text-balance animate-fade-up" style={{ animationDelay: "0.1s" }}>
