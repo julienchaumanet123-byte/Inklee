@@ -100,16 +100,18 @@ export function SlotPicker({
         )}
       </div>
 
-      {/* CTA */}
-      <Button
-        size="xl"
-        className="w-full"
-        disabled={!selectedSlot}
-        onClick={continueToBooking}
-      >
-        Continuer
-        <ArrowRight className="w-4 h-4" />
-      </Button>
+      {/* CTA — sticky en bas pour rester accessible après le choix du créneau */}
+      <div className="sticky bottom-4 z-20 pt-2">
+        <Button
+          size="xl"
+          className="w-full shadow-lg shadow-black/40"
+          disabled={!selectedSlot}
+          onClick={continueToBooking}
+        >
+          Continuer
+          <ArrowRight className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }

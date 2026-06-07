@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { WeekGrid } from "./week-grid";
+import { AgendaMobileList } from "./mobile-list";
 
 export const dynamic = "force-dynamic";
 
@@ -78,7 +79,7 @@ export default async function AgendaPage({
     <div className="p-6 md:p-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="font-display text-4xl font-bold mb-1">Agenda</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold mb-1">Agenda</h1>
           <p className="text-ink-300">{formatWeekRange(weekStart)}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -104,7 +105,17 @@ export default async function AgendaPage({
         </div>
       </div>
 
-      <WeekGrid days={days.map((d) => d.toISOString())} appointments={appointments ?? []} />
+      {/* Desktop : grille hebdo. Mobile : liste par jour (lisible au doigt). */}
+      <div className="hidden md:block">
+        <WeekGrid
+          days={days.map((d) => d.toISOString())}
+          appointments={appointments ?? []}
+        />
+      </div>
+      <AgendaMobileList
+        days={days.map((d) => d.toISOString())}
+        appointments={appointments ?? []}
+      />
     </div>
   );
 }

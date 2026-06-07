@@ -118,7 +118,7 @@ export default async function StudioPublicPage({
             {SPECIALTY_LABEL[studio.specialty] ?? "Studio"}
           </div>
 
-          <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 text-balance">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 text-balance">
             {studio.name}
           </h1>
 

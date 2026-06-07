@@ -14,7 +14,7 @@ export default function NewAppointmentPage() {
         Retour à l'agenda
       </Link>
 
-      <h1 className="font-display text-4xl font-bold mb-2">Nouveau rendez-vous</h1>
+      <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">Nouveau rendez-vous</h1>
       <p className="text-ink-300 mb-8">
         Création manuelle. Pour les RDV pris en ligne, utilise ta page de réservation.
       </p>

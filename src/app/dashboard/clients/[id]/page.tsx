@@ -65,7 +65,7 @@ export default async function ClientDetailPage({
       </Link>
 
       <div className="mb-8">
-        <h1 className="font-display text-4xl font-bold mb-3">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold mb-3">
           {client.first_name} {client.last_name}
         </h1>
         <div className="flex flex-wrap gap-4 text-sm text-ink-300">

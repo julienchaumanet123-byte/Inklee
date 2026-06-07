@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getStudioAccess } from "@/lib/access";
 import { Button } from "@/components/ui/button";
 import { SidebarLink } from "./sidebar-link";
+import { DashboardMobileNav } from "./mobile-nav";
 
 const NAV = [
   { href: "/dashboard", label: "Accueil", icon: LayoutDashboard },
@@ -163,7 +164,7 @@ export default async function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 pb-20 md:pb-0">
           {!access.subscribed && (
             <div
               className={`flex items-center justify-between gap-3 border-b px-4 md:px-8 py-3 text-sm ${
@@ -190,6 +191,9 @@ export default async function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* Navigation mobile (bottom-nav + sheet) */}
+      <DashboardMobileNav slug={studio.slug} />
     </div>
   );
 }

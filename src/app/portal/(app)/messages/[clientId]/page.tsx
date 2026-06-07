@@ -44,7 +44,7 @@ export default async function ConversationPage({
     .order("created_at", { ascending: true });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem-4rem)]">
+    <div className="flex flex-col h-[calc(100dvh-8rem)]">
       {/* Header */}
       <div className="border-b border-ink-800/60 px-4 py-3 flex items-center gap-3">
         <Link

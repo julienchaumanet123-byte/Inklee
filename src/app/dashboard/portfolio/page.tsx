@@ -38,7 +38,7 @@ export default async function PortfolioPage() {
     <div className="p-6 md:p-10 max-w-5xl">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
         <div>
-          <h1 className="font-display text-4xl font-bold mb-1">Portfolio</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold mb-1">Portfolio</h1>
           <p className="text-ink-300">
             Galerie publique de tes œuvres, visible sur ta page de réservation
             et l'espace de tes clients.

@@ -46,7 +46,7 @@ export default async function BillingPage({
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
         <div>
-          <h1 className="font-display text-4xl font-bold mb-1">Abonnement</h1>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold mb-1">Abonnement</h1>
           <p className="text-ink-300">
             Tu es actuellement sur le plan{" "}
             <span className="text-foreground font-medium">

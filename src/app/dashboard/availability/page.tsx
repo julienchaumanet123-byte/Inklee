@@ -66,7 +66,7 @@ export default async function AvailabilityPage() {
   return (
     <div className="p-6 md:p-10 max-w-3xl">
       <div className="mb-8">
-        <h1 className="font-display text-4xl font-bold mb-1">Disponibilités</h1>
+        <h1 className="font-display text-3xl sm:text-4xl font-bold mb-1">Disponibilités</h1>
         <p className="text-ink-300">
           Définis tes horaires de travail. Tes clients verront uniquement les
           créneaux libres correspondants.

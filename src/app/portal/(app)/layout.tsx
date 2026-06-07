@@ -37,7 +37,7 @@ export default async function PortalLayout({
       <main className="flex-1 pb-24">{children}</main>
 
       {/* Mobile-first bottom nav */}
-      <nav className="fixed bottom-0 inset-x-0 border-t border-ink-800/60 bg-ink-950/95 backdrop-blur-xl z-40">
+      <nav className="fixed bottom-0 inset-x-0 border-t border-ink-800/60 bg-ink-950/95 backdrop-blur-xl z-40 pb-[env(safe-area-inset-bottom)]">
         <div className="container flex items-center justify-around h-16">
           <PortalNavLink href="/portal" exact label="Accueil">
             <Home className="w-5 h-5" />

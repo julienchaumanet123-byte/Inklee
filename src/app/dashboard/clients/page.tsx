@@ -38,7 +38,7 @@ export default async function ClientsPage() {
   return (
     <div className="p-6 md:p-10 max-w-6xl">
       <div className="mb-8">
-        <h1 className="font-display text-4xl font-bold mb-1">Clients</h1>
+        <h1 className="font-display text-3xl sm:text-4xl font-bold mb-1">Clients</h1>
         <p className="text-ink-300">
           {clients?.length ?? 0} client{(clients?.length ?? 0) > 1 ? "s" : ""} dans
           ta base.
